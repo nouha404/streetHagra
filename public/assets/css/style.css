@@ -1,0 +1,111 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background-image: url('/assets/img/foudubus/fond/fond.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+#game {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    border: 10px solid red; /* Bordure du ring */
+    box-sizing: border-box; /* Pour inclure la bordure dans les dimensions */
+}
+
+.player {
+    display: none;
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: bottom;
+    transition: opacity 0.2s ease;
+    top: 230px;
+    left: 0;
+    /*transition: transform 0.1s ease, opacity 0.2s ease;*/
+}
+
+#player1 {
+    background-image: url('/assets/img/foudubus/to-left/toleft-foudubus-classique-1.svg');
+}
+
+#player1.classique2 {
+    background-image: url('/assets/img/foudubus/to-left/toleft-foudubus-classique-2.svg');
+}
+
+#player1.attacking1 {
+    /*transform: scale(1.1);*/
+    background-image: url('/assets/img/foudubus/to-left/toleft-foudubus-attaque-1.svg');
+}
+
+#player1.attacking2 {
+
+    /*transform: scale(1.2);*/
+    background-image: url('/assets/img/foudubus/to-left/toleft-foudubus-attaque-2.svg');
+}
+
+#player1.attacking3 {
+    /*transform: scale(1.3);*/
+    background-image: url('/assets/img/foudubus/to-left/toleft-foudubus-attaque-3.svg');
+}
+
+#player2 {
+    background-image: url('/assets/img/foudubus/to-right/toright-foudubus-classique-1.svg');
+}
+
+#player2.classique2 {
+    background-image: url('/assets/img/foudubus/to-right/toright-foudubus-classique-2.svg');
+}
+
+#player2.attacking1 {
+    /*transform: scale(1.1);*/
+    background-image: url('/assets/img/foudubus/to-right/toright-foudubus-attaque-1.svg');
+}
+
+#player2.attacking2 {
+    /*transform: scale(1.2);*/
+    background-image: url('/assets/img/foudubus/to-right/toright-foudubus-attaque-2.svg');
+}
+
+#player2.attacking3 {
+    /*transform: scale(1.3);*/
+    background-image: url('/assets/img/foudubus/to-right/toright-foudubus-attaque-3.svg');
+}
+
+#status {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 20px;
+    background-color: rgba(0, 0, 0, 0.5); /* Fond semi-transparent */
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.player1-status {
+    color: green; /* Couleur pour le joueur 1 */
+}
+
+.player2-status {
+    color: red; /* Couleur pour le joueur 2 */
+}
+
+#victory-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 1000; /* S'assurer que le message est au-dessus de tout */
+    font-size: 2em;
+}
+

@@ -5,15 +5,18 @@
     <title>Combat 2D</title>
     <script src="/socket.io/socket.io.js"></script>
     <script defer src="client.js"></script>
+    <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body>
-    <h1>Jeu de Combat 2D</h1>
-    <svg id="game" width="800" height="400">
-        <rect width="800" height="400" fill="lightblue" />
-        <image id="player1" href="/assets/img/player.svg" width="50" height="50" />
-        <image id="playertwo" href="/assets/img/playertwo.svg" width="50" height="50" />
-    </svg>
-    <p id="status"></p>
+    <h1>Jet de Combat 2D</h1>
+    <div id="name-input">
+        <input type="text" id="player-name" placeholder="Entrez votre nom">
+        <button id="submit-name">Commencer</button>
+    </div>
+    <div id="game" style="display: none;">
+        <div id="player1" class="player" style="display: none;"></div>
+        <div id="player2" class="player" style="display: none;"></div>
+        <p id="status"></p>
+    </div>
 </body>
 </html>
-
