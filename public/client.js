@@ -402,3 +402,11 @@ function drawPlayers() {
         p2.style.display = "none";
     }
 }
+/*function showResultImage(playerId, isWinner) {
+    const gameContainer = document.getElementById("game");
+    const image = document.createElement('img');
+    image.src = isWinner ? '/assets/img/victory.png' : '/assets/img/defeat.png'; // Chemins des images
+    image.classList.add(isWinner ? 'victory-image' : 'defeat-image');
+    image.style.display = 'block';
+    gameContainer.appendChild(image);
+}*/
