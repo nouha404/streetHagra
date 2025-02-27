@@ -37,12 +37,9 @@ nextMapButton.addEventListener('click', () => {
 confirmMapButton.addEventListener('click', () => {
     const selectedMap = maps[currentMapIndex];
     alert(`Vous avez choisi la map : ${selectedMap}`);
-    // Envoyer la map sélectionnée au serveur
     socket.emit('selectMap', selectedMap);
-    // Masquer le carrousel et afficher le jeu
     document.getElementById('map-selection').style.display = 'none';
     document.getElementById('game').style.display = 'block';
-    // Appliquer la map sélectionnée au jeu
     document.body.style.backgroundImage = `url('${selectedMap}')`;
 });
 
@@ -88,6 +85,9 @@ style.innerHTML = `
         z-index: 1000;
         display: none;
     }
+    .hidden {
+        display: none !important;
+    }
 `;
 document.head.appendChild(style);
 
@@ -122,6 +122,19 @@ function createHealthBars() {
     gameContainer.appendChild(player2HealthContainer);
 }
 
+// Fonction pour afficher l'image "KO"
+function showKOImage(playerId) {
+    const player = document.getElementById(playerId);
+    const koImage = document.getElementById(`${playerId}-ko`);
+
+    if (player && koImage) {
+        player.style.display = "none"; // Masquer l'image normale
+        koImage.style.display = "block"; // Afficher l'image "KO"
+        koImage.style.left = player.style.left; // Positionner l'image "KO"
+        koImage.style.top = player.style.top;
+    }
+}
+
 // Fonction pour mettre à jour les barres de vie
 function updateHealthBars() {
     const player1HealthBar = document.querySelector("#player1-health .health-bar");
@@ -138,6 +151,11 @@ function updateHealthBars() {
             player1HealthBar.style.width = `${healthPercentage1}%`;
             player1HealthBar.style.backgroundColor = healthPercentage1 > 50 ? "green" : healthPercentage1 > 20 ? "orange" : "red";
             player1Name.textContent = p1Data.name;
+
+            // Afficher l'image "KO" si le joueur 1 n'a plus de vie
+            if (p1Data.hp <= 0) {
+                showKOImage("player1");
+            }
         }
 
         if (p2Data) {
@@ -145,6 +163,11 @@ function updateHealthBars() {
             player2HealthBar.style.width = `${healthPercentage2}%`;
             player2HealthBar.style.backgroundColor = healthPercentage2 > 50 ? "green" : healthPercentage2 > 20 ? "orange" : "red";
             player2Name.textContent = p2Data.name;
+
+            // Afficher l'image "KO" si le joueur 2 n'a plus de vie
+            if (p2Data.hp <= 0) {
+                showKOImage("player2");
+            }
         }
     }
 }
@@ -223,6 +246,7 @@ socket.on("gameOver", (data) => {
         showResultImage(playerId, true); // Afficher l'image de victoire
     } else if (playerId === data.loser) {
         showResultImage(playerId, false); // Afficher l'image de défaite
+        showKOImage(`player${data.loser === playerId ? "1" : "2"}`); // Afficher l'image "KO" pour le perdant
     }
 });
 
