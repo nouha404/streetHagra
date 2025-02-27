@@ -37,12 +37,9 @@ nextMapButton.addEventListener('click', () => {
 confirmMapButton.addEventListener('click', () => {
     const selectedMap = maps[currentMapIndex];
     alert(`Vous avez choisi la map : ${selectedMap}`);
-    // Envoyer la map sélectionnée au serveur
     socket.emit('selectMap', selectedMap);
-    // Masquer le carrousel et afficher le jeu
     document.getElementById('map-selection').style.display = 'none';
     document.getElementById('game').style.display = 'block';
-    // Appliquer la map sélectionnée au jeu
     document.body.style.backgroundImage = `url('${selectedMap}')`;
 });
 
@@ -88,6 +85,9 @@ style.innerHTML = `
         z-index: 1000;
         display: none;
     }
+    .hidden {
+        display: none !important;
+    }
 `;
 document.head.appendChild(style);
 
@@ -122,6 +122,19 @@ function createHealthBars() {
     gameContainer.appendChild(player2HealthContainer);
 }
 
+// Fonction pour afficher l'image "KO"
+function showKOImage(playerId) {
+    const player = document.getElementById(playerId);
+    const koImage = document.getElementById(`${playerId}-ko`);
+
+    if (player && koImage) {
+        player.style.display = "none"; // Masquer l'image normale
+        koImage.style.display = "block"; // Afficher l'image "KO"
+        koImage.style.left = player.style.left; // Positionner l'image "KO"
+        koImage.style.top = player.style.top;
+    }
+}
+
 // Fonction pour mettre à jour les barres de vie
 function updateHealthBars() {
     const player1HealthBar = document.querySelector("#player1-health .health-bar");
@@ -138,6 +151,11 @@ function updateHealthBars() {
             player1HealthBar.style.width = `${healthPercentage1}%`;
             player1HealthBar.style.backgroundColor = healthPercentage1 > 50 ? "green" : healthPercentage1 > 20 ? "orange" : "red";
             player1Name.textContent = p1Data.name;
+
+            // Afficher l'image "KO" si le joueur 1 n'a plus de vie
+            if (p1Data.hp <= 0) {
+                showKOImage("player1");
+            }
         }
 
         if (p2Data) {
@@ -145,6 +163,11 @@ function updateHealthBars() {
             player2HealthBar.style.width = `${healthPercentage2}%`;
             player2HealthBar.style.backgroundColor = healthPercentage2 > 50 ? "green" : healthPercentage2 > 20 ? "orange" : "red";
             player2Name.textContent = p2Data.name;
+
+            // Afficher l'image "KO" si le joueur 2 n'a plus de vie
+            if (p2Data.hp <= 0) {
+                showKOImage("player2");
+            }
         }
     }
 }
@@ -223,6 +246,7 @@ socket.on("gameOver", (data) => {
         showResultImage(playerId, true); // Afficher l'image de victoire
     } else if (playerId === data.loser) {
         showResultImage(playerId, false); // Afficher l'image de défaite
+        showKOImage(`player${data.loser === playerId ? "1" : "2"}`); // Afficher l'image "KO" pour le perdant
     }
 });
 
@@ -310,7 +334,9 @@ function playAttackAnimation(playerId) {
 function drawPlayers() {
     const p1 = document.getElementById("player1");
     const p2 = document.getElementById("player2");
-    const status = document.getElementById("status");
+    const p1KO = document.getElementById("player1-ko");
+    const p2KO = document.getElementById("player2-ko");
+
     if (!playerName) return;
 
     let p1Data = players[playerId]; // Utilise l'ID du joueur actuel
@@ -322,14 +348,24 @@ function drawPlayers() {
         p1.style.top = `${p1Data.y}px`;
         p1.style.display = "block";
 
-        // Mettre à jour l'animation du joueur 1
-        if (p1Data.animation === "walking") {
-            updatePlayerAnimation("player1", p1Data);
-        } else if (p1Data.animation === "attacking") {
-            playAttackAnimation("player1");
+        // Afficher l'image "KO" si le joueur 1 n'a plus de vie
+        if (p1Data.hp <= 0) {
+            showKOImage("player1");
         } else {
-            p1.classList.remove("classique1", "classique2", "attacking1", "attacking2", "attacking3");
-            p1.classList.add("idle");
+            // Masquer l'image "KO" et afficher l'image normale
+            p1.classList.remove("hidden");
+            const koImage1 = document.getElementById("player1-ko");
+            if (koImage1) koImage1.style.display = 'none';
+
+            // Mettre à jour l'animation du joueur 1
+            if (p1Data.animation === "walking") {
+                updatePlayerAnimation("player1", p1Data);
+            } else if (p1Data.animation === "attacking") {
+                playAttackAnimation("player1");
+            } else {
+                p1.classList.remove("classique1", "classique2", "attacking1", "attacking2", "attacking3");
+                p1.classList.add("idle");
+            }
         }
     } else {
         p1.style.display = "none";
@@ -343,14 +379,24 @@ function drawPlayers() {
         p2.style.top = `${p2Data.y}px`;
         p2.style.display = "block";
 
-        // Mettre à jour l'animation du joueur 2 (sans inversion de direction)
-        if (p2Data.animation === "walking") {
-            updatePlayerAnimation("player2", p2Data);
-        } else if (p2Data.animation === "attacking") {
-            playAttackAnimation("player2");
+        // Afficher l'image "KO" si le joueur 2 n'a plus de vie
+        if (p2Data.hp <= 0) {
+            showKOImage("player2");
         } else {
-            p2.classList.remove("classique1", "classique2", "attacking1", "attacking2", "attacking3");
-            p2.classList.add("idle");
+            // Masquer l'image "KO" et afficher l'image normale
+            p2.classList.remove("hidden");
+            const koImage2 = document.getElementById("player2-ko");
+            if (koImage2) koImage2.style.display = 'none';
+
+            // Mettre à jour l'animation du joueur 2 (sans inversion de direction)
+            if (p2Data.animation === "walking") {
+                updatePlayerAnimation("player2", p2Data);
+            } else if (p2Data.animation === "attacking") {
+                playAttackAnimation("player2");
+            } else {
+                p2.classList.remove("classique1", "classique2", "attacking1", "attacking2", "attacking3");
+                p2.classList.add("idle");
+            }
         }
     } else {
         p2.style.display = "none";

@@ -3,7 +3,7 @@ body {
     overflow: hidden;
     height: 100vh;
     width: 100vw;
-    background-image: url('/assets/img/foudubus/fond/Map2.png');
+    background-image: url('/assets/img/foudubus/fond/Map1.png');
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
@@ -21,16 +21,44 @@ body {
     box-sizing: border-box;
     margin-top: 20px; /* Espacement entre le formulaire et le jeu */
 }
+#player1-ko img,
+#player2-ko img {
+    /* Ajoutez ici les styles que vous souhaitez appliquer à l'image */
+    width: 100%; /* L'image occupera 100% de la largeur de son conteneur */
+    height: 100%; /* L'image occupera 100% de la hauteur de son conteneur */
+    object-fit: contain; /* Assure que l'image est entièrement visible dans le conteneur */
+    transition: opacity 0.3s ease; /* Ajoute une transition d'opacité */
+}
+
+#player1-ko:hover img,
+#player2-ko:hover img {
+    opacity: 0.8; /* Réduit légèrement l'opacité au survol */
+}
+
+/* Vous pouvez également ajouter des animations si vous le souhaitez */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+#player1-ko img,
+#player2-ko img {
+    animation: fadeIn 0.5s ease-in-out; /* Applique une animation de fondu à l'image */
+}
 .player {
     display: block;
     position: absolute;
     width: 300px;
-    height: 30%;
+    height: 40%;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: bottom;
     transition: opacity 0.2s ease;
-    margin-top: 9%;
+    margin-top: 8%;
     left: 0;
     /*transition: transform 0.1s ease, opacity 0.2s ease;*/
 }
@@ -129,7 +157,7 @@ h2 {
 #confirm-map {
     padding: 10px 20px;
     font-size: 1.2em;
-    background-color: #28a745;
+    background-color:#0056b3 ;
     color: #fff;
     border: none;
     border-radius: 5px;
@@ -155,6 +183,7 @@ h2 {
     border-radius: 15px; /* Arrondir davantage les coins */
     padding: 20px; /* Augmenter le padding */
     transition: border-color 0.3s ease, transform 0.3s ease;
+    background-color: grey;
 }
 
 .character-option:hover {
@@ -178,7 +207,7 @@ h2 {
 #confirm-character {
     padding: 15px 30px; /* Augmenter le padding du bouton */
     font-size: 1.5em; /* Augmenter la taille du texte du bouton */
-    background-color: #28a745;
+    background-color: #0056b3;
     color: #fff;
     border: none;
     border-radius: 10px; /* Arrondir davantage les coins */
@@ -312,4 +341,12 @@ h2 {
     z-index: 1000; /* S'assurer que le message est au-dessus de tout */
     font-size: 2em;
 }
-
+.ko-image {
+    width: 30%;
+    height: 20%;
+    display: none;
+    position: absolute;
+    margin-top: 25%;
+    margin-left: 20%;
+    transform: translate(-50%, -50%);
+}
