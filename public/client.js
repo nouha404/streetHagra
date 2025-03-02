@@ -23,6 +23,7 @@ const confirmMapButton = document.getElementById('confirm-map');
 mapImage.src = maps[currentMapIndex];
 
 // Gestion des clics sur les boutons précédent/suivant
+// Gestion de la navigation entre les maps
 prevMapButton.addEventListener('click', () => {
     currentMapIndex = (currentMapIndex - 1 + maps.length) % maps.length;
     mapImage.src = maps[currentMapIndex];
@@ -36,13 +37,59 @@ nextMapButton.addEventListener('click', () => {
 // Gestion de la confirmation de la map
 confirmMapButton.addEventListener('click', () => {
     const selectedMap = maps[currentMapIndex];
-    alert(`Vous avez choisi la map : ${selectedMap}`);
     socket.emit('selectMap', selectedMap);
+    
     document.getElementById('map-selection').style.display = 'none';
-    document.getElementById('game').style.display = 'block';
-    document.body.style.backgroundImage = `url('${selectedMap}')`;
+    document.getElementById('sound-selection').style.display = 'block'; // Afficher la sélection du son
 });
 
+const sounds = [
+    { name: "Jotaro Song", file: "/assets/sound/music1.mp3" },
+    { name: "Overtaken", file: "/assets/sound/music2.mp3" },
+    { name: "Shinji Song", file: "/assets/sound/music3.mp3" },
+    { name: "Pillier Theme song", file: "/assets/sound/music4.mp3" }
+];
+
+let currentSoundIndex = 0;
+const soundName = document.getElementById("sound-name");
+const audioPlayer = document.getElementById("audio-player");
+const audioSource = audioPlayer.querySelector("source");
+const prevSoundBtn = document.getElementById("prev-sound");
+const nextSoundBtn = document.getElementById("next-sound");
+const confirmSoundBtn = document.getElementById("confirm-sound");
+
+// Régler le volume à 25% par défaut
+audioPlayer.volume = 0.20;
+
+function updateSound() {
+    soundName.textContent = sounds[currentSoundIndex].name;
+    audioSource.src = sounds[currentSoundIndex].file;
+    audioPlayer.load();
+}
+
+prevSoundBtn.addEventListener("click", () => {
+    currentSoundIndex = (currentSoundIndex - 1 + sounds.length) % sounds.length;
+    updateSound();
+});
+
+nextSoundBtn.addEventListener("click", () => {
+    currentSoundIndex = (currentSoundIndex + 1) % sounds.length;
+    updateSound();
+});
+
+confirmSoundBtn.addEventListener("click", () => {
+    const selectedSound = sounds[currentSoundIndex].file;
+    socket.emit('selectSound', selectedSound);
+
+    // Lecture de la musique dès qu'on appuie sur "Confirmer"
+    audioPlayer.play();
+
+    // Masquer la sélection de son et passer à l'écran de jeu
+    document.getElementById('sound-selection').style.display = 'none';
+    document.getElementById('game').style.display = 'block'; // Passer au jeu
+});
+
+updateSound(); // Initialisation du son affiché
 // Ajout des styles CSS pour les barres de vie, les noms des joueurs et les images de victoire/défaite
 const style = document.createElement('style');
 style.innerHTML = `
@@ -55,6 +102,7 @@ style.innerHTML = `
         border: 2px solid #000;
         border-radius: 5px;
         overflow: hidden;
+        margin-top:5%;
     }
     .health-bar {
         height: 100%;
@@ -80,7 +128,7 @@ style.innerHTML = `
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 300px;
+        width: 25%;
         height: auto;
         z-index: 1000;
         display: none;
@@ -330,6 +378,7 @@ function playAttackAnimation(playerId) {
         player.classList.remove("attacking3");
     }, 300);
 }
+
 
 function drawPlayers() {
     const p1 = document.getElementById("player1");

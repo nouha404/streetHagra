@@ -350,3 +350,90 @@ h2 {
     margin-left: 20%;
     transform: translate(-50%, -50%);
 }
+#sound-selection {
+    text-align: center;
+    margin-top: 50px;  /* Augmenter l'espace en haut */
+    background: linear-gradient(135deg, grey, white); /* Dégradé de fond stylé */
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Ombre autour du conteneur */
+    width: 80%; /* Prend plus d'espace horizontal */
+    max-width: 600px; /* Largeur maximale pour ne pas être trop grand */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#sound-carousel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 30px; /* Espacement entre le carrousel et le reste */
+}
+
+#sound-name {
+    font-size: 1.8em;
+    color: #fff;
+    font-weight: bold;
+    background: rgba(0, 0, 0, 0.7); /* Plus sombre pour mieux se détacher du fond */
+    padding: 15px 25px; /* Plus de padding pour un effet plus grand */
+    border-radius: 10px;
+    transition: transform 0.3s ease-in-out; /* Animation sur hover */
+}
+
+#sound-name:hover {
+    transform: scale(1.1); /* Zoom lors du survol */
+}
+
+#prev-sound, #next-sound, #confirm-sound {
+    padding: 15px 30px;
+    font-size: 1.4em;
+    background-color: #0056b3;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#prev-sound:hover, #next-sound:hover, #confirm-sound:hover {
+    background-color: #0056b3;
+    transform: scale(1.1); /* Effet de zoom lors du survol */
+}
+
+audio {
+    margin-top: 20px;
+    width: 80%; /* Occupation de plus de place, mais garder un espace propre */
+    max-width: 500px; /* Taille maximale pour ne pas déborder */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    background-color: #fff; /* Fond de l'audio en blanc */
+}
+
+audio::-webkit-media-controls-volume-slider {
+    border-radius: 10px;
+}
+
+#sound-selection h2 {
+    color: white;
+    font-size: 2.2em;
+    margin-bottom: 20px;
+    font-family: 'Roboto', sans-serif;
+}
+
+@media (max-width: 768px) {
+    #sound-selection {
+        width: 90%; /* Réduit la largeur sur les petits écrans */
+        padding: 20px; /* Moins de padding sur les petits écrans */
+    }
+
+    #sound-carousel {
+        flex-direction: column;
+    }
+
+    audio {
+        width: 100%;
+    }
+}
+
