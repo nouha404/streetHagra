@@ -203,14 +203,14 @@ document.getElementById("submit-name").addEventListener("click", () => {
 // Gestion du choix du personnage
 document.querySelectorAll(".character-option").forEach(option => {
     option.addEventListener("click", () => {
-        // Retirer la sélection précédente
         document.querySelectorAll(".character-option").forEach(opt => {
             opt.style.borderColor = "transparent";
         });
 
-        // Sélectionner le personnage
         selectedCharacter = option.getAttribute("data-character");
-        option.style.borderColor = "#007BFF"; // Mettre en évidence la sélection
+        option.style.borderColor = "#007BFF"; 
+
+        socket.emit("chooseCharacter", selectedCharacter); // Envoyer le personnage choisi au serveur
     });
 });
 
@@ -235,10 +235,37 @@ socket.on("init", (data) => {
 
 socket.on("updatePlayers", (data) => {
     players = data;
-    console.log("Mise à jour des joueurs reçue :", data);
+    console.log("🔄 Mise à jour des joueurs :", players);
+
+    Object.keys(players).forEach(playerId => {
+        let player = players[playerId];
+        let element = document.getElementById(`player${playerId === socket.id ? "1" : "2"}`);
+
+        if (element) {
+            element.style.left = `${player.x}px`; // 🟢 Met à jour la position du joueur
+            element.style.top = `${player.y}px`;
+
+            if (player.animation === "walking") {
+                element.classList.add("walking");
+            } else if (player.animation === "attacking") {
+                element.classList.add("attacking");
+            } else {
+                element.classList.add("idle");
+            }
+        }
+    });
+
     drawPlayers();
-    updateHealthBars(); // Mettre à jour les barres de vie
+    updateHealthBars();
 });
+
+
+
+// ⚡ Bloquer les mouvements tant que les deux joueurs ne sont pas connectés
+socket.on("playersReady", () => {
+    console.log("🚀 Les deux joueurs sont connectés, le combat peut commencer !");
+});
+
 
 socket.on("gameOver", (data) => {
     isGameOver = true; // Bloquer les mouvements
@@ -250,26 +277,25 @@ socket.on("gameOver", (data) => {
     }
 });
 
+
+
 document.addEventListener("keydown", (e) => {
-    if (isGameOver) return; // Bloquer les mouvements si la partie est terminée
+    if (!players[playerId] || isGameOver) return;
 
     if (e.key === "ArrowLeft") {
-        console.log("Déplacement vers la gauche");
+        console.log("⬅️ Déplacement gauche");
         socket.emit("move", "left");
-        lastDirection = "left";
     }
     if (e.key === "ArrowRight") {
-        console.log("Déplacement vers la droite");
+        console.log("➡️ Déplacement droite");
         socket.emit("move", "right");
-        lastDirection = "right";
     }
     if (e.key === " ") {
-        console.log("Attaque");
-        attackSound.play();
+        console.log("⚔️ Attaque !");
         socket.emit("attack");
     }
     if (e.key === "ArrowUp") {
-        console.log("Saut");
+        console.log("🕴️ Saut");
         socket.emit("jump");
     }
 });
@@ -331,7 +357,30 @@ function playAttackAnimation(playerId) {
     }, 300);
 }
 
-function drawPlayers() {
+
+function playAttackAnimation(playerId) {
+    const player = document.getElementById(playerId);
+
+    if (!player) return;
+
+    player.classList.remove("attacking1", "attacking2", "attacking3");
+
+    player.classList.add("attacking1");
+    setTimeout(() => {
+        player.classList.remove("attacking1");
+        player.classList.add("attacking2");
+    }, 100);
+    setTimeout(() => {
+        player.classList.remove("attacking2");
+        player.classList.add("attacking3");
+    }, 200);
+    setTimeout(() => {
+        player.classList.remove("attacking3");
+    }, 300);
+}
+
+/*function drawPlayers() {
+
     const p1 = document.getElementById("player1");
     const p2 = document.getElementById("player2");
     const p1KO = document.getElementById("player1-ko");
@@ -401,12 +450,132 @@ function drawPlayers() {
     } else {
         p2.style.display = "none";
     }
-}
-/*function showResultImage(playerId, isWinner) {
-    const gameContainer = document.getElementById("game");
-    const image = document.createElement('img');
-    image.src = isWinner ? '/assets/img/victory.png' : '/assets/img/defeat.png'; // Chemins des images
-    image.classList.add(isWinner ? 'victory-image' : 'defeat-image');
-    image.style.display = 'block';
-    gameContainer.appendChild(image);
 }*/
+
+
+/*
+function drawPlayers() {
+    const p1 = document.getElementById("player1");
+    const p2 = document.getElementById("player2");
+
+    if (!playerName || !p1 || !p2) return;
+
+    let p1Data = players[playerId]; 
+    let p2Data = Object.values(players).find(player => player !== p1Data);
+
+    // 🔹 Mise à jour du joueur 1
+    if (p1Data) {
+        console.log(`🎮 Joueur 1 -> x=${p1Data.x}, y=${p1Data.y}, HP=${p1Data.hp}`);
+        p1.style.left = `${p1Data.x}px`;
+        p1.style.top = `${p1Data.y}px`;
+        p1.style.display = "block";
+
+        if (p1Data.hp <= 0) {
+            showKOImage("player1");
+        } else {
+            p1.classList.remove("hidden");
+            hideKOImage("player1");
+            updatePlayerAnimation("player1", p1Data);
+        }
+    } else {
+        p1.style.display = "none";
+    }
+
+    // 🔹 Mise à jour du joueur 2 (sans inversion)
+    if (p2Data) {
+        console.log(`🎮 Joueur 2 -> x=${p2Data.x}, y=${p2Data.y}, HP=${p2Data.hp}`);
+        p2.style.left = `${p2Data.x}px`;  // ❌ Plus d'inversion ici
+        p2.style.top = `${p2Data.y}px`;
+        p2.style.display = "block";
+
+        if (p2Data.hp <= 0) {
+            showKOImage("player2");
+        } else {
+            p2.classList.remove("hidden");
+            hideKOImage("player2");
+            updatePlayerAnimation("player2", p2Data);
+        }
+    } else {
+        p2.style.display = "none";
+    }
+}
+
+// Fonction pour masquer l'image KO si le joueur est toujours en vie
+function hideKOImage(playerId) {
+    const koImage = document.getElementById(`${playerId}-ko`);
+    if (koImage) {
+        koImage.style.display = "none";
+    }
+}*/
+
+function drawPlayers() {
+    const p1 = document.getElementById("player1");
+    const p2 = document.getElementById("player2");
+
+    if (!playerName || !p1 || !p2) return;
+
+    let p1Data = players[playerId]; 
+    let p2Data = Object.values(players).find(player => player !== p1Data);
+
+    // 🔹 Mise à jour du joueur 1
+    if (p1Data) {
+        console.log(`🎮 Joueur 1 -> x=${p1Data.x}, y=${p1Data.y}, HP=${p1Data.hp}`);
+        p1.style.left = `${p1Data.x}px`;
+        p1.style.top = `${p1Data.y}px`;
+        p1.style.display = "block";
+
+        if (p1Data.hp <= 0) {
+            showKOImage("player1");
+        } else {
+            p1.classList.remove("hidden");
+            hideKOImage("player1");
+
+            // ✅ Mise à jour de l'animation
+            if (p1Data.animation === "walking") {
+                updatePlayerAnimation("player1", p1Data);
+            } else if (p1Data.animation === "attacking") {
+                playAttackAnimation("player1");
+            } else {
+                p1.classList.remove("classique1", "classique2", "attacking1", "attacking2", "attacking3");
+                p1.classList.add("idle");
+            }
+        }
+    } else {
+        p1.style.display = "none";
+    }
+
+    // 🔹 Mise à jour du joueur 2 (sans inversion)
+    if (p2Data) {
+        console.log(`🎮 Joueur 2 -> x=${p2Data.x}, y=${p2Data.y}, HP=${p2Data.hp}`);
+        p2.style.left = `${p2Data.x}px`;  // ❌ Plus d'inversion ici
+        p2.style.top = `${p2Data.y}px`;
+        p2.style.display = "block";
+
+        if (p2Data.hp <= 0) {
+            showKOImage("player2");
+        } else {
+            p2.classList.remove("hidden");
+            hideKOImage("player2");
+
+            // ✅ Mise à jour de l'animation
+            if (p2Data.animation === "walking") {
+                updatePlayerAnimation("player2", p2Data);
+            } else if (p2Data.animation === "attacking") {
+                playAttackAnimation("player2");
+            } else {
+                p2.classList.remove("classique1", "classique2", "attacking1", "attacking2", "attacking3");
+                p2.classList.add("idle");
+            }
+        }
+    } else {
+        p2.style.display = "none";
+    }
+}
+
+// Fonction pour masquer l'image KO si le joueur est toujours en vie
+function hideKOImage(playerId) {
+    const koImage = document.getElementById(`${playerId}-ko`);
+    if (koImage) {
+        koImage.style.display = "none";
+    }
+}
