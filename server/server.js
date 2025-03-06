@@ -191,7 +191,7 @@ io.on("connection", (socket) => {
     io.emit("updatePlayers", players);
 
     // Gestion des déplacements
-    socket.on("move", (direction) => {
+    /*socket.on("move", (direction) => {
         if (players[socket.id]) {
             if (direction === "left") {
                 players[socket.id].x = Math.max(0, players[socket.id].x - 10);
@@ -201,25 +201,38 @@ io.on("connection", (socket) => {
                 players[socket.id].x = Math.min(MAP_WIDTH - 300, players[socket.id].x + 10);
                 players[socket.id].animation = "walking";
             }
-    
-            /** if (players[socket.id]) {
-            if (direction === "left") {
-                players[socket.id].x = Math.max(0, players[socket.id].x - 10);
-                players[socket.id].animation = "walking"; // Mettre à jour l'état d'animation
-                players[socket.id].direction = "left"; 
-            }
-            if (direction === "right") {
-                players[socket.id].x = Math.min(MAP_WIDTH - 300, players[socket.id].x + 10);
-                players[socket.id].animation = "walking"; // Mettre à jour l'état d'animation
-                players[socket.id].direction = "right";
-            }
-            io.emit("updatePlayers", players);
-        } */
             console.log(`🕹️ ${socket.id} se déplace à x=${players[socket.id].x}`);
             
             io.emit("updatePlayers", players);
         }
+    });*/
+    socket.on("move", (direction) => {
+        if (players[socket.id]) {
+            if (direction === "left") {
+                players[socket.id].x = Math.max(0, players[socket.id].x - 10);
+                players[socket.id].animation = "walking";
+                players[socket.id].direction = "left"; // Ajoute la direction actuelle
+            }
+            if (direction === "right") {
+                players[socket.id].x = Math.min(MAP_WIDTH - 300, players[socket.id].x + 10);
+                players[socket.id].animation = "walking";
+                players[socket.id].direction = "right"; // Ajoute la direction actuelle
+            }
+    
+            console.log(`🕹️ ${socket.id} se déplace à x=${players[socket.id].x}`);
+    
+            io.emit("updatePlayers", players);
+    
+            // **Ajout du timeout pour repasser à idle**
+            setTimeout(() => {
+                if (players[socket.id]) {
+                    players[socket.id].animation = "idle"; // Passe à idle après un petit délai
+                    io.emit("updatePlayers", players);
+                }
+            }, 150); // 150ms après, il passe en idle
+        }
     });
+    
 
     // Gestion du saut
     socket.on("jump", () => {

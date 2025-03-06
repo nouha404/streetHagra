@@ -303,16 +303,15 @@ document.addEventListener("keydown", (e) => {
 document.addEventListener("keyup", (e) => {
     if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
         lastDirection = null; // Réinitialiser la direction lorsque la touche est relâchée
+        const player = document.getElementById(`player${playerId === socket.id ? "1" : "2"}`);
+        if (player) {
+            player.classList.remove("classique2");
+            player.classList.add("classique1"); // Passe toujours par classique1
 
-        const player1 = document.getElementById("player1");
-        const player2 = document.getElementById("player2");
-        if (player1) {
-            player1.classList.remove("classique1", "classique2");
-            player1.classList.add("idle");
-        }
-        if (player2) {
-            player2.classList.remove("classique1", "classique2");
-            player2.classList.add("idle");
+            setTimeout(() => {
+                player.classList.remove("classique1");
+                player.classList.add("idle"); // Puis revient à idle
+            }, 100);
         }
     }
 });
@@ -323,18 +322,26 @@ function updatePlayerAnimation(playerId, playerData) {
     if (!player) return;
 
     if (playerData.animation === "walking") {
-        if (lastDirection === "left") {
-            player.classList.remove("classique2");
-            player.classList.add("classique1"); // Marche vers la gauche
-        } else if (lastDirection === "right") {
-            player.classList.remove("classique1");
-            player.classList.add("classique2"); // Marche vers la droite
+        if (playerData.direction === "left") {
+            player.classList.remove("classique2", "idle");
+            player.classList.add("classique1"); // Animation vers la gauche
+        } else if (playerData.direction === "right") {
+            player.classList.remove("classique1", "idle");
+            player.classList.add("classique2"); // Animation vers la droite
         }
     } else {
-        player.classList.remove("classique1", "classique2");
-        player.classList.add("idle"); // Animation par défaut (inactif)
+        // 🔹 Si le joueur s'arrête, il passe par "classique1" avant de devenir "idle"
+        player.classList.remove("classique2");
+        player.classList.add("classique1");
+
+        setTimeout(() => {
+            player.classList.remove("classique1");
+            player.classList.add("idle");
+        }, 100);
     }
 }
+
+
 
 function playAttackAnimation(playerId) {
     const player = document.getElementById(playerId);
