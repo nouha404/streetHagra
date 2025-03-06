@@ -245,27 +245,27 @@ h2 {
 }
 
 #player2 {
-    background-image: url('/assets/img/foudubus/to-right/toright-foudubus-classique-1.svg');
+    background-image: url('/assets/img/smehlee/to-right/toright-smehlee-classique-1.svg');
 }
 
 #player2.classique2 {
-    background-image: url('/assets/img/foudubus/to-right/toright-foudubus-classique-2.svg');
+    background-image: url('/assets/img/smehlee/to-right/toright-smehlee-classique-2.svg');
 }
 
 #player2.attacking1 {
-    background-image: url('/assets/img/foudubus/to-right/toright-foudubus-attaque-1.svg');
+    background-image: url('/assets/img/smehlee/to-right/toright-smehlee-attaque-1.svg');
 }
 
 #player2.attacking2 {
-    background-image: url('/assets/img/foudubus/to-right/toright-foudubus-attaque-2.svg');
+    background-image: url('/assets/img/smehlee/to-right/toright-smehlee-attaque-2.svg');
 }
 
 #player2.attacking3 {
-    background-image: url('/assets/img/foudubus/to-right/toright-foudubus-attaque-3.svg');
+    background-image: url('/assets/img/smehlee/to-right/toright-smehlee-attaque-3.svg');
 }
 
 /* Classes pour Smehlee */
-#player1.smehlee {
+/*#player1.smehlee {
     background-image: url('/assets/img/smehlee/to-left/toleft-smehlee-classique-1.svg');
 }
 
@@ -307,7 +307,7 @@ h2 {
 
 #player2.smehlee.attacking3 {
     background-image: url('/assets/img/smehlee/to-right/toright-smehlee-attaque-3.svg');
-}
+}*/
 #status {
     position: absolute;
     top: 10px;

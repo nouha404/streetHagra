@@ -4,31 +4,32 @@ module.exports = {
         let defenderId = Object.keys(players).find(id => id !== attackerId);
         let defender = players[defenderId];
 
-
-        if (defender) {
-            const distance = Math.abs(attacker.x - defender.x);
-            console.log(`Distance entre les joueurs : ${distance}`); // Log de la distance
-
-
-            if (distance < 50) {
-                // Appliquer les dégâts tout en empêchant les HP de devenir négatifs
-                defender.hp = Math.max(0, defender.hp - 10); // Réduction de la vie de 10 points
-                console.log(`Dégâts appliqués à ${defenderId}. HP restant : ${defender.hp}`);
-
-
-                // Vérifier si le défenseur a perdu
-                if (defender.hp <= 0) {
-                    console.log(`${defenderId} a perdu !`);
-                    return { gameOver: true, winner: attackerId, loser: defenderId }; // Retourner le résultat de la fin de partie
-                }
-            } else {
-                console.log("Attaque ratée : distance trop grande");
-            }
+        if (!attacker || !defender) {
+            console.log("❌ Attaque impossible : un des joueurs est absent.");
+            return null;
         }
 
+        // 🔹 Correction : prendre les positions réelles
+        let attackerPosition = attacker.x;
+        let defenderPosition = defender.x;
 
-        // Si la partie n'est pas terminée, retourner null
+        // 🔹 Calcul de la distance réelle
+        const distance = Math.abs(attackerPosition - defenderPosition);
+        console.log(`📏 Distance réelle entre ${attackerId} et ${defenderId} : ${distance}px`);
+
+        if (distance <= 100) { // Ajustement de la portée d'attaque
+            console.log(`💥 ${attackerId} attaque ${defenderId} !`);
+            defender.hp = Math.max(0, defender.hp - 10);
+            console.log(`❤️ HP après attaque - ${defenderId}: ${defender.hp}`);
+
+            if (defender.hp <= 0) {
+                console.log(`🏆 ${attackerId} a gagné !`);
+                return { gameOver: true, winner: attackerId, loser: defenderId };
+            }
+        } else {
+            console.log("❌ Attaque ratée : distance trop grande");
+        }
+
         return null;
     }
 };
-
