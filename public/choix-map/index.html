@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choix de Map</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/map.css">
+</head>
+<body>
+  
+    <div id="map-selection" class="screen">
+        <button id="back-button">
+            <img src="/assets/img/fond/retour.png" alt="Bouton retour">
+        </button>
+
+        <div class="selection-container">
+            <!-- Grille des maps -->
+            <div class="map-container">
+                <div class="map-grid">
+                    <div class="map-cell selected" data-map="map1"></div>
+                    <div class="map-cell" data-map="map2"></div>
+                    <div class="map-cell" data-map="map3"></div>
+                    <div class="map-cell" data-map="map4"></div>
+                    <div class="map-cell" data-map="map5"></div>
+                    <div class="map-cell" data-map="map6"></div>
+                    <div class="map-cell" data-map="map7"></div>
+                    <div class="map-cell" data-map="map8"></div>
+                    <div class="map-cell" data-map="map9"></div>
+                    <div class="map-cell" data-map="map10"></div>
+                    <div class="map-cell" data-map="map11"></div>
+                    <div class="map-cell" data-map="map12"></div>
+                </div>
+            </div>
+            
+            <!-- Affichage de la map sélectionnée -->
+            <div class="map-changer">
+                <img id="selected-map-img" src="/assets/img/maps/map1.png" alt="Map sélectionnée">
+                <img id="selected-map-name" src="/assets/img/maps/map-blaze0.png" alt="Nom de la map">
+            </div>
+        </div>
+        
+        <!-- Bouton "Suivant" pour valider la map -->
+        <div class="suivant-container">
+            <button class="suivant">
+                <img src="/assets/img/fond/bouton-suivant.png" alt="Bouton suivant">
+            </button>
+        </div>
+    </div>
+
+    <script src="/assets/js/choix-map.js"></script>
+</body>
+</html>

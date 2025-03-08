@@ -1,0 +1,91 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: black;
+}
+
+/* Conteneur du jeu */
+#game-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Fond de jeu (sera mis à jour dynamiquement) */
+#game-background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+}
+
+/* Joueurs */
+.player {
+    position: absolute;
+    width: 300px;
+    height: 400px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Positionnement des joueurs */
+#player1 {
+    left: 10%;
+}
+#player2 {
+    right: 10%;
+}
+
+/* KO */
+.ko-image {
+    width: 30%;
+    height: 20%;
+    display: none;
+    position: absolute;
+    margin-top: 25%;
+    margin-left: 20%;
+    transform: translate(-50%, -50%);
+}
+
+/* Texte */
+#status {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-size: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.player1-status {
+    color: green;
+}
+.player2-status {
+    color: red;
+}
+
+/* Victoire */
+#victory-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 1000;
+    font-size: 2em;
+}

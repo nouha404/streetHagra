@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=Kdam+Thmor+Pro&display=swap');
+
+body {
+    background-color: #333333;
+    color: white;
+    text-align: center;
+    font-family: 'Press Start 2P', cursive;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* Structure des écrans */
+.screen {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* Conteneur global */
+.selection-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 90%;
+    max-width: 1200px;
+}
+
+/* Grille des maps */
+.map-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 100px);
+    grid-template-rows: repeat(3, 100px);
+    gap: 5px;
+    padding: 10px;
+    background-color: black;
+    border: 5px solid white;
+}
+
+/* Cellules */
+.map-cell {
+    width: 100px;
+    height: 100px;
+    background-color: #3a3a3a;
+    border: 3px solid black;
+}
+.map-cell.selected {
+    background-color: #d1d1d1;
+    border: 3px solid gold;
+}
+.map-cell:hover {
+    border: 3px solid blue;
+}
+
+/* Zone map sélectionnée */
+.map-changer {
+  
+    background-color: black;
+    border: 5px solid white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+.map-changer img:nth-child(2) {
+    position: absolute;
+    bottom: -15%;
+}
+
+/* ✅ Positionnement du bouton suivant */
+.suivant-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 100px;
+}
+
+/* Bouton suivant */
+.suivant {
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+.suivant:hover {
+    transform: scale(1.1);
+}
+
+/* ✅ Responsive */
+@media (max-width: 768px) {
+    .selection-container {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .map-grid {
+        grid-template-columns: repeat(3, 80px);
+        grid-template-rows: repeat(4, 80px);
+    }
+    
+    .map-cell {
+        width: 80px;
+        height: 80px;
+    }
+
+    .suivant-container {
+        margin-top: 30px;
+    }
+}

@@ -1,4 +1,4 @@
-const socket = io();
+/*const socket = io();
 
 let playerId = null;
 let players = {};
@@ -233,24 +233,44 @@ socket.on("init", (data) => {
     updateHealthBars(); // Mettre à jour les barres de vie
 });
 
+
 socket.on("updatePlayers", (data) => {
     players = data;
-    console.log("🔄 Mise à jour des joueurs :", players);
 
-    Object.keys(players).forEach(playerId => {
-        let player = players[playerId];
-        let element = document.getElementById(`player${playerId === socket.id ? "1" : "2"}`);
+    Object.keys(players).forEach(id => {
+        let player = players[id];
+        let playerElement = document.getElementById(`player${id === socket.id ? "1" : "2"}`);
 
-        if (element) {
-            element.style.left = `${player.x}px`; // 🟢 Met à jour la position du joueur
-            element.style.top = `${player.y}px`;
+        if (playerElement) {
+            playerElement.style.left = `${player.x}px`;
+            playerElement.style.top = `${player.y}px`;
 
+            // 🔹 Supprime toutes les anciennes classes avant d'ajouter la nouvelle direction
+            playerElement.classList.remove("player1", "player1-right", "player2", "player2-left");
+
+            if (id === socket.id) { 
+                // ✅ Player 1 : Si il regarde à gauche, afficher `player1`, sinon `player1-right`
+                if (player.direction === "left") {
+                    playerElement.classList.add("player1-right");
+                } else {
+                    playerElement.classList.add("player1");
+                }
+            } else { 
+                // ✅ Player 2 : Si il regarde à gauche, afficher `player2-left`, sinon `player2`
+                if (player.direction === "left") {
+                    playerElement.classList.add("player2-left");
+                } else {
+                    playerElement.classList.add("player2");
+                }
+            }
+
+            // ✅ Gérer les animations en fonction de l'action en cours
             if (player.animation === "walking") {
-                element.classList.add("walking");
+                playerElement.classList.add("walking");
             } else if (player.animation === "attacking") {
-                element.classList.add("attacking");
+                playAttackAnimation(`player${id === socket.id ? "1" : "2"}`);
             } else {
-                element.classList.add("idle");
+                playerElement.classList.add("idle");
             }
         }
     });
@@ -258,6 +278,8 @@ socket.on("updatePlayers", (data) => {
     drawPlayers();
     updateHealthBars();
 });
+
+
 
 
 
@@ -318,28 +340,40 @@ document.addEventListener("keyup", (e) => {
 
 function updatePlayerAnimation(playerId, playerData) {
     const player = document.getElementById(playerId);
-
     if (!player) return;
 
-    if (playerData.animation === "walking") {
+    // ❌ Supprime toutes les classes de direction et d'animation
+    player.classList.remove(
+        "player1", "player1-right",
+        "classique1", "classique2",
+        "attacking1", "attacking2", "attacking3",
+        "idle", "walking"
+    );
+
+    // 🔄 **Correction : Change l'image selon la direction**
+    if (playerId === "player1") {
         if (playerData.direction === "left") {
-            player.classList.remove("classique2", "idle");
-            player.classList.add("classique1"); // Animation vers la gauche
-        } else if (playerData.direction === "right") {
-            player.classList.remove("classique1", "idle");
-            player.classList.add("classique2"); // Animation vers la droite
+            player.classList.add("player1-right"); // **⬅️ IMAGE "to-right" quand il va à gauche**
+        } else {
+            player.classList.add("player1"); // **➡️ IMAGE "to-left" quand il va à droite**
         }
-    } else {
-        // 🔹 Si le joueur s'arrête, il passe par "classique1" avant de devenir "idle"
-        player.classList.remove("classique2");
-        player.classList.add("classique1");
+    }
 
-        setTimeout(() => {
-            player.classList.remove("classique1");
-            player.classList.add("idle");
-        }, 100);
+    console.log(`🎮 Animation Player 1 - Direction: ${playerData.direction}, Class: ${player.classList}`);
+
+    // 🔥 Gestion des animations
+    if (playerData.animation === "walking") {
+        player.classList.add("classique2");
+    } else if (playerData.animation === "attacking") {
+        playAttackAnimation(playerId);
+    } else {
+        player.classList.add("classique1"); // Idle
     }
 }
+
+
+
+
 
 
 
@@ -348,8 +382,10 @@ function playAttackAnimation(playerId) {
 
     if (!player) return;
 
+    // 🔹 Supprime les anciennes animations
     player.classList.remove("attacking1", "attacking2", "attacking3");
 
+    // 🔥 Gère l'animation d'attaque
     player.classList.add("attacking1");
     setTimeout(() => {
         player.classList.remove("attacking1");
@@ -361,145 +397,78 @@ function playAttackAnimation(playerId) {
     }, 200);
     setTimeout(() => {
         player.classList.remove("attacking3");
+
+        // Retour à l'animation idle selon la direction après attaque
+        if (players[playerId].direction === "left") {
+            player.classList.add("player1-right", "classique1");
+        } else {
+            player.classList.add("player1", "classique1");
+        }
     }, 300);
 }
 
-
-function playAttackAnimation(playerId) {
-    const player = document.getElementById(playerId);
-
-    if (!player) return;
-
-    player.classList.remove("attacking1", "attacking2", "attacking3");
-
-    player.classList.add("attacking1");
-    setTimeout(() => {
-        player.classList.remove("attacking1");
-        player.classList.add("attacking2");
-    }, 100);
-    setTimeout(() => {
-        player.classList.remove("attacking2");
-        player.classList.add("attacking3");
-    }, 200);
-    setTimeout(() => {
-        player.classList.remove("attacking3");
-    }, 300);
-}
-
-/*function drawPlayers() {
-
-    const p1 = document.getElementById("player1");
-    const p2 = document.getElementById("player2");
-    const p1KO = document.getElementById("player1-ko");
-    const p2KO = document.getElementById("player2-ko");
-
-    if (!playerName) return;
-
-    let p1Data = players[playerId]; // Utilise l'ID du joueur actuel
-    let p2Data = Object.values(players).find(player => player !== p1Data); // Données du deuxième joueur
-
-    if (p1Data) {
-        console.log(`Position du joueur 1 : x = ${p1Data.x}, y = ${p1Data.y}`);
-        p1.style.left = `${p1Data.x}px`;
-        p1.style.top = `${p1Data.y}px`;
-        p1.style.display = "block";
-
-        // Afficher l'image "KO" si le joueur 1 n'a plus de vie
-        if (p1Data.hp <= 0) {
-            showKOImage("player1");
-        } else {
-            // Masquer l'image "KO" et afficher l'image normale
-            p1.classList.remove("hidden");
-            const koImage1 = document.getElementById("player1-ko");
-            if (koImage1) koImage1.style.display = 'none';
-
-            // Mettre à jour l'animation du joueur 1
-            if (p1Data.animation === "walking") {
-                updatePlayerAnimation("player1", p1Data);
-            } else if (p1Data.animation === "attacking") {
-                playAttackAnimation("player1");
-            } else {
-                p1.classList.remove("classique1", "classique2", "attacking1", "attacking2", "attacking3");
-                p1.classList.add("idle");
-            }
-        }
-    } else {
-        p1.style.display = "none";
-    }
-
-    if (p2Data) {
-        // Inverser uniquement la position horizontale du joueur adverse
-        const invertedX = MAP_WIDTH - p2Data.x - 300; // 300 = largeur du joueur
-        console.log(`Position du joueur 2 (inversée) : x = ${invertedX}, y = ${p2Data.y}`);
-        p2.style.left = `${invertedX}px`;
-        p2.style.top = `${p2Data.y}px`;
-        p2.style.display = "block";
-
-        // Afficher l'image "KO" si le joueur 2 n'a plus de vie
-        if (p2Data.hp <= 0) {
-            showKOImage("player2");
-        } else {
-            // Masquer l'image "KO" et afficher l'image normale
-            p2.classList.remove("hidden");
-            const koImage2 = document.getElementById("player2-ko");
-            if (koImage2) koImage2.style.display = 'none';
-
-            // Mettre à jour l'animation du joueur 2 (sans inversion de direction)
-            if (p2Data.animation === "walking") {
-                updatePlayerAnimation("player2", p2Data);
-            } else if (p2Data.animation === "attacking") {
-                playAttackAnimation("player2");
-            } else {
-                p2.classList.remove("classique1", "classique2", "attacking1", "attacking2", "attacking3");
-                p2.classList.add("idle");
-            }
-        }
-    } else {
-        p2.style.display = "none";
-    }
-}*/
-
-
-/*
 function drawPlayers() {
     const p1 = document.getElementById("player1");
     const p2 = document.getElementById("player2");
 
-    if (!playerName || !p1 || !p2) return;
+    if (!p1 || !p2) return;
 
     let p1Data = players[playerId]; 
     let p2Data = Object.values(players).find(player => player !== p1Data);
 
-    // 🔹 Mise à jour du joueur 1
+    // ✅ Mise à jour du joueur 1
     if (p1Data) {
-        console.log(`🎮 Joueur 1 -> x=${p1Data.x}, y=${p1Data.y}, HP=${p1Data.hp}`);
         p1.style.left = `${p1Data.x}px`;
         p1.style.top = `${p1Data.y}px`;
         p1.style.display = "block";
+
+        // ❌ Supprime toutes les classes de direction avant d'ajouter la bonne
+        p1.classList.remove("player1", "player1-right");
+
+        if (p1Data.direction === "left") {
+            p1.classList.add("player1-right"); // ✅ IMAGE "to-right" quand il va à gauche
+        } else {
+            p1.classList.add("player1"); // ✅ IMAGE "to-left" quand il va à droite
+        }
+
+        console.log(`🎮 Mise à jour Player 1 - Direction: ${p1Data.direction}, Class: ${p1.classList}`);
+
+        updatePlayerAnimation("player1", p1Data);
 
         if (p1Data.hp <= 0) {
             showKOImage("player1");
         } else {
             p1.classList.remove("hidden");
             hideKOImage("player1");
+
+            // ✅ Mise à jour de l'animation
             updatePlayerAnimation("player1", p1Data);
         }
     } else {
         p1.style.display = "none";
     }
 
-    // 🔹 Mise à jour du joueur 2 (sans inversion)
+    // ✅ Mise à jour du joueur 2
     if (p2Data) {
-        console.log(`🎮 Joueur 2 -> x=${p2Data.x}, y=${p2Data.y}, HP=${p2Data.hp}`);
-        p2.style.left = `${p2Data.x}px`;  // ❌ Plus d'inversion ici
+        p2.style.left = `${p2Data.x}px`;
         p2.style.top = `${p2Data.y}px`;
         p2.style.display = "block";
 
+        p2.classList.remove("player2", "player2-left");
+
+        if (p2Data.direction === "left") {
+            p2.classList.add("player2-left");
+        } else {
+            p2.classList.add("player2");
+        }
+        
         if (p2Data.hp <= 0) {
             showKOImage("player2");
         } else {
             p2.classList.remove("hidden");
             hideKOImage("player2");
+
+            // ✅ Mise à jour de l'animation
             updatePlayerAnimation("player2", p2Data);
         }
     } else {
@@ -507,77 +476,7 @@ function drawPlayers() {
     }
 }
 
-// Fonction pour masquer l'image KO si le joueur est toujours en vie
-function hideKOImage(playerId) {
-    const koImage = document.getElementById(`${playerId}-ko`);
-    if (koImage) {
-        koImage.style.display = "none";
-    }
-}*/
 
-function drawPlayers() {
-    const p1 = document.getElementById("player1");
-    const p2 = document.getElementById("player2");
-
-    if (!playerName || !p1 || !p2) return;
-
-    let p1Data = players[playerId]; 
-    let p2Data = Object.values(players).find(player => player !== p1Data);
-
-    // 🔹 Mise à jour du joueur 1
-    if (p1Data) {
-        console.log(`🎮 Joueur 1 -> x=${p1Data.x}, y=${p1Data.y}, HP=${p1Data.hp}`);
-        p1.style.left = `${p1Data.x}px`;
-        p1.style.top = `${p1Data.y}px`;
-        p1.style.display = "block";
-
-        if (p1Data.hp <= 0) {
-            showKOImage("player1");
-        } else {
-            p1.classList.remove("hidden");
-            hideKOImage("player1");
-
-            // ✅ Mise à jour de l'animation
-            if (p1Data.animation === "walking") {
-                updatePlayerAnimation("player1", p1Data);
-            } else if (p1Data.animation === "attacking") {
-                playAttackAnimation("player1");
-            } else {
-                p1.classList.remove("classique1", "classique2", "attacking1", "attacking2", "attacking3");
-                p1.classList.add("idle");
-            }
-        }
-    } else {
-        p1.style.display = "none";
-    }
-
-    // 🔹 Mise à jour du joueur 2 (sans inversion)
-    if (p2Data) {
-        console.log(`🎮 Joueur 2 -> x=${p2Data.x}, y=${p2Data.y}, HP=${p2Data.hp}`);
-        p2.style.left = `${p2Data.x}px`;  // ❌ Plus d'inversion ici
-        p2.style.top = `${p2Data.y}px`;
-        p2.style.display = "block";
-
-        if (p2Data.hp <= 0) {
-            showKOImage("player2");
-        } else {
-            p2.classList.remove("hidden");
-            hideKOImage("player2");
-
-            // ✅ Mise à jour de l'animation
-            if (p2Data.animation === "walking") {
-                updatePlayerAnimation("player2", p2Data);
-            } else if (p2Data.animation === "attacking") {
-                playAttackAnimation("player2");
-            } else {
-                p2.classList.remove("classique1", "classique2", "attacking1", "attacking2", "attacking3");
-                p2.classList.add("idle");
-            }
-        }
-    } else {
-        p2.style.display = "none";
-    }
-}
 
 // Fonction pour masquer l'image KO si le joueur est toujours en vie
 function hideKOImage(playerId) {
@@ -586,3 +485,4 @@ function hideKOImage(playerId) {
         koImage.style.display = "none";
     }
 }
+*/
