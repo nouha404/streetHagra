@@ -1,65 +1,3 @@
-/*document.addEventListener("DOMContentLoaded", function () {
-
-    const backButton = document.getElementById("back-button");
-    const boutonSuivant = document.querySelector(".suivant");
-    const mapOptions = document.querySelectorAll(".character-cell"); // Les cellules des maps
-    const mapChanger = document.querySelector(".personnage-changer");
-
-    // Définition des maps et leurs images associées
-    const maps = [
-        {
-            img: "/assets/img/maps/map1.png",
-            name: "/assets/img/maps/map-blaze0.png"
-        },
-        {
-            img: "/assets/img/maps/map2.png",
-            name: "/assets/img/maps/map-blaze1.png"
-        },
-        {
-            img: "/assets/img/maps/map3.png",
-            name: "/assets/img/maps/map-blaze2.png"
-        }
-    ];
-
-    let selectedMap = 0; // Index de la map sélectionnée
-
-    // Sélection de la map dans la grille
-    mapOptions.forEach((cell, index) => {
-        cell.addEventListener("click", () => {
-            // Retirer la classe "selected" des autres cellules
-            mapOptions.forEach(m => m.classList.remove("selected"));
-            // Ajouter la classe "selected" à la cellule cliquée
-            cell.classList.add("selected");
-
-            // Mise à jour de l'affichage de la map
-            if (index < maps.length) {
-                mapChanger.innerHTML = `
-                    <img src="${maps[index].img}" alt="Aperçu de la map">
-                    <img src="${maps[index].name}" alt="Nom de la map">
-                `;
-                selectedMap = index;
-
-                // ✅ Stocke la map sélectionnée
-                localStorage.setItem("selectedMap", maps[index].img);
-            }
-        });
-    });
-
-    // Bouton retour
-    if (backButton) {
-        backButton.addEventListener("click", () => {
-            window.location.href = "/choix-perso"; // Revient au choix du personnage
-        });
-    }
-
-    // Bouton suivant
-    if (boutonSuivant) {
-        boutonSuivant.addEventListener("click", () => {
-            window.location.href = "/gameplay"; // Redirige vers la phase de jeu
-        });
-    }
-});
-*/
 
 /*
 document.addEventListener("DOMContentLoaded", function () {
@@ -114,7 +52,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     
 });*/
-document.addEventListener("DOMContentLoaded", function () {
+
+/*document.addEventListener("DOMContentLoaded", function () {
     const mapOptions = document.querySelectorAll(".map-cell");
     const selectedMapImg = document.getElementById("selected-map-img");
     const selectedMapName = document.getElementById("selected-map-name");
@@ -183,3 +122,54 @@ document.addEventListener("DOMContentLoaded", function () {
         window.location.href = "/gameplay";
     });
 });
+*/
+
+console.log("✅ choix-map.js chargé !");
+document.addEventListener("DOMContentLoaded", function () {
+    const mapOptions = document.querySelectorAll(".map-cell");
+    const selectedMapImg = document.getElementById("selected-map-img");
+    const selectedMapName = document.getElementById("selected-map-name");
+    const boutonSuivant = document.querySelector(".suivant");
+
+    if (!boutonSuivant) {
+        console.error("❌ ERREUR : Le bouton 'Suivant' n'a pas été trouvé !");
+        return;
+    }
+
+    const maps = {
+        "map1": { img: "/assets/img/maps/map1.png", name: "/assets/img/maps/map-blaze0.png" },
+        "map2": { img: "/assets/img/maps/map2.png", name: "/assets/img/maps/map-blaze1.png" },
+        "map3": { img: "/assets/img/maps/map3.png", name: "/assets/img/maps/map-blaze2.png" }
+    };
+
+    let selectedMap = "map1";
+
+    mapOptions.forEach(cell => {
+        cell.addEventListener("click", () => {
+            mapOptions.forEach(b => b.classList.remove("selected"));
+            cell.classList.add("selected");
+
+            selectedMap = cell.getAttribute("data-map");
+
+            if (maps[selectedMap]) {
+                selectedMapImg.src = maps[selectedMap].img;
+                selectedMapName.src = maps[selectedMap].name;
+                localStorage.setItem("selectedMap", selectedMap); // ✅ Sauvegarde correcte
+            }
+        });
+    });
+
+    boutonSuivant.addEventListener("click", () => {
+        if (!maps[selectedMap]) {
+            console.error("❌ ERREUR : Map non trouvée !");
+            return;
+        }
+        localStorage.setItem("selectedMap", selectedMap);
+        console.log("✅ Map sauvegardée :", selectedMap);
+        window.location.href = "/gameplay";
+    });
+});
+
+
+
+
