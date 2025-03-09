@@ -76,6 +76,8 @@ server.listen(port, () => console.log(`🚀 Serveur en ligne sur http://localhos
 */
 
 
+
+
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -86,65 +88,79 @@ const server = http.createServer(app);
 const io = new Server(server);
 const port = 3000;
 
-let players = {}; // ✅ Stockage des joueurs
+let players = {}; // Stockage des joueurs
 
-app.use(express.static(path.join(__dirname, "../public"))); // Corrigé
+app.use(express.static(path.join(__dirname, "../public"))); // Dossier public
 
-
-// ✅ Routes du jeu
+// Routes du jeu
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "../public/index.html")));
 app.get("/choix-perso", (req, res) => res.sendFile(path.join(__dirname, "../public/choix-perso/index.html")));
 app.get("/choix-map", (req, res) => res.sendFile(path.join(__dirname, "../public/choix-map/index.html")));
 app.get("/gameplay", (req, res) => res.sendFile(path.join(__dirname, "../public/gameplay/index.html")));
-app.use("/assets", express.static(path.join(__dirname, "public/assets")));
 
 io.on("connection", (socket) => {
     console.log(`🟢 Joueur connecté : ${socket.id}`);
 
+    // Vérifier si la partie est complète
+    if (Object.keys(players).length >= 2) {
+        console.log("⚠️ Partie complète, joueur refusé.");
+        socket.emit("gameFull");
+        socket.disconnect();
+        return;
+    }
+
+    // Attendre que le joueur envoie ses données
     socket.on("setPlayerData", (playerData) => {
-        console.log(`📥 Données reçues du joueur ${socket.id} :`, playerData);
-
-        if (Object.keys(players).length >= 2) {
-            console.log("⚠️ La partie est complète, joueur refusé.");
-            socket.emit("gameFull");
-            socket.disconnect();
-            return;
-        }
-
-        let playerNumber = Object.keys(players).length === 0 ? "Joueur 1" : "Joueur 2";
+        if (Object.keys(players).length >= 2) return;
 
         players[socket.id] = {
             id: socket.id,
-            x: Object.keys(players).length === 0 ? 100 : 900, // Position initiale
+            x: Object.keys(players).length === 0 ? 100 : 900,
             y: 500,
             hp: 100,
             character: playerData.character,
-            map: playerData.map,
         };
 
-        console.log(`✅ ${playerNumber} (${socket.id}) enregistré avec :`);
-        console.log(`   🦸 Personnage : ${playerData.character}`);
-        console.log(`   🗺️ Carte choisie : ${playerData.map}`);
-        console.log("📋 État des joueurs après enregistrement :", players);
-        
-        io.emit("updatePlayers", players);
+        console.log(`🦸 Joueur ${socket.id} a choisi ${playerData.character}`);
+        console.log("🗺️ Map sélectionnée :", playerData.map);
+
+        // Envoyer la mise à jour immédiatement au premier joueurchat
+         io.emit("updatePlayers", players);
+
+        // Envoyer la mise à jour seulement si 2 joueurs sont connectés
+        if (Object.keys(players).length === 2) {
+            io.emit("updatePlayers", players);
+        }
     });
 
+    // Gérer les déplacements
     socket.on("move", (direction) => {
         if (!players[socket.id]) return;
-
-        if (direction === "left") players[socket.id].x -= 20;
-        if (direction === "right") players[socket.id].x += 20;
-
+    
+        console.log(`🕹️ Joueur ${socket.id} veut bouger : ${direction}`);
+        if (direction === "ArrowLeft") {  // 🔹 Corrige ici
+            players[socket.id].x -= 20;
+        }
+        if (direction === "ArrowRight") { // 🔹 Corrige ici
+            players[socket.id].x += 20;
+        }
+    
+        console.log(`📍 Nouvelle position de ${socket.id} : x=${players[socket.id].x}`);
+    
+        // Envoyer la mise à jour à tous les clients
         io.emit("updatePlayers", players);
     });
+    
 
+    // Gestion de la déconnexion
     socket.on("disconnect", () => {
         console.log(`🔴 Joueur déconnecté : ${socket.id}`);
         delete players[socket.id];
+
+        // Informer l'autre joueur s'il reste seul
         io.emit("updatePlayers", players);
     });
 });
 
-// ✅ Lancer le serveur
+// Lancement du serveur
 server.listen(port, () => console.log(`🚀 Serveur en ligne sur http://localhost:${port}`));

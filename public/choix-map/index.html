@@ -5,21 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Choix de Map</title>
     <link rel="stylesheet" href="/assets/css/style.css">
-    <script src="/socket.io/socket.io.js"></script>
     <link rel="stylesheet" href="/assets/css/map.css">
     <script defer src="/assets/js/choix-map.js"></script>
-    <script defer src="/assets/client.js"></script>
-    
 </head>
 <body>
-  
     <div id="map-selection" class="screen">
         <button id="back-button">
             <img src="/assets/img/fond/retour.png" alt="Bouton retour">
         </button>
 
         <div class="selection-container">
-            <!-- Grille des maps -->
             <div class="map-container">
                 <div class="map-grid">
                     <div class="map-cell selected" data-map="map1"></div>
@@ -37,21 +32,17 @@
                 </div>
             </div>
             
-            <!-- Affichage de la map sélectionnée -->
             <div class="map-changer">
                 <img id="selected-map-img" src="/assets/img/maps/map1.png" alt="Map sélectionnée">
                 <img id="selected-map-name" src="/assets/img/maps/map-blaze0.png" alt="Nom de la map">
             </div>
         </div>
         
-        <!-- Bouton "Suivant" pour valider la map -->
         <div class="suivant-container">
             <button class="suivant">
                 <img src="/assets/img/fond/bouton-suivant.png" alt="Bouton suivant">
             </button>
         </div>
     </div>
-
-    
 </body>
 </html>

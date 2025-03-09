@@ -1,9 +1,11 @@
 document.addEventListener("DOMContentLoaded", function () {
+    console.log("✅ script.js chargé !");
+
     const introScreen = document.getElementById("intro-screen");
     const transitionScreen = document.getElementById("transition-screen");
     const transitionImg = document.getElementById("transition-img");
 
-    // ✅ Fonction pour animer fond-transition-4.png
+    // Fonction pour animer fond-transition-4.png
     function animateTransition() {
         let opacity = 0.2;
         let scale = 0.5;
@@ -16,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 transitionImg.style.transform = `scale(${scale})`;
                 setTimeout(fadeEffect, 100); // Ajuste la fluidité
             } else {
-                // ✅ Une fois l'animation terminée, redirige vers choix-perso
+                // Redirige vers choix-perso après l'animation
                 setTimeout(() => {
                     window.location.href = "/choix-perso";
                 }, 500);
@@ -25,13 +27,13 @@ document.addEventListener("DOMContentLoaded", function () {
         fadeEffect();
     }
 
-    // ✅ Fonction pour démarrer la transition au clic
+    // Fonction pour démarrer la transition au clic
     function startTransition() {
         introScreen.classList.add("hidden");
         transitionScreen.classList.remove("hidden");
         animateTransition(); // Démarre l'animation du fond
     }
 
-    // ✅ Événement : démarre la transition au premier clic
+    // Événement : démarre la transition au premier clic
     document.body.addEventListener("click", startTransition);
 });

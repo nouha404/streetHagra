@@ -1,4 +1,4 @@
-console.log("✅ client.js chargé !");
+/*console.log("✅ client.js chargé !");
 const socket = io();
 
 // ✅ Récupérer les données stockées
@@ -38,3 +38,4 @@ document.addEventListener("keydown", (event) => {
     if (event.key === "ArrowLeft") socket.emit("move", "left");
     if (event.key === "ArrowRight") socket.emit("move", "right");
 });
+*/

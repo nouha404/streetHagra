@@ -124,8 +124,11 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 */
 
-console.log("✅ choix-map.js chargé !");
+
+
 document.addEventListener("DOMContentLoaded", function () {
+    console.log("✅ choix-map.js chargé !");
+
     const mapOptions = document.querySelectorAll(".map-cell");
     const selectedMapImg = document.getElementById("selected-map-img");
     const selectedMapName = document.getElementById("selected-map-name");
@@ -138,8 +141,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const maps = {
         "map1": { img: "/assets/img/maps/map1.png", name: "/assets/img/maps/map-blaze0.png" },
-        "map2": { img: "/assets/img/maps/map2.png", name: "/assets/img/maps/map-blaze1.png" },
-        "map3": { img: "/assets/img/maps/map3.png", name: "/assets/img/maps/map-blaze2.png" }
+        "map2": { img: "/assets/img/maps/map2.png", name: "/assets/img/maps/map-blaze1.png" }
     };
 
     let selectedMap = "map1";
@@ -150,11 +152,11 @@ document.addEventListener("DOMContentLoaded", function () {
             cell.classList.add("selected");
 
             selectedMap = cell.getAttribute("data-map");
+            console.log("🗺️ Map sélectionnée :", selectedMap);
 
             if (maps[selectedMap]) {
                 selectedMapImg.src = maps[selectedMap].img;
                 selectedMapName.src = maps[selectedMap].name;
-                localStorage.setItem("selectedMap", selectedMap); // ✅ Sauvegarde correcte
             }
         });
     });
@@ -164,12 +166,10 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error("❌ ERREUR : Map non trouvée !");
             return;
         }
-        localStorage.setItem("selectedMap", selectedMap);
-        console.log("✅ Map sauvegardée :", selectedMap);
+
+        localStorage.setItem("selectedMap", maps[selectedMap].img);
+        console.log("✅ Map sauvegardée :", maps[selectedMap].img);
+
         window.location.href = "/gameplay";
     });
 });
-
-
-
-
