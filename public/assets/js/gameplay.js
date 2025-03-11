@@ -181,9 +181,9 @@ document.addEventListener("DOMContentLoaded", function () {
         
             // Appliquer la direction
             if (playerData.direction === "left") {
-                player.classList.add("toleft"); // Regarde vers la gauche
+                player.classList.add("toright"); // Regarde vers la gauche
             } else if (playerData.direction === "right") {
-                player.classList.add("toright"); // Regarde vers la droite
+                player.classList.add("toleft"); // Regarde vers la droite
             }
         
             // Appliquer les classes en fonction de l'état du joueur
