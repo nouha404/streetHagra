@@ -104,3 +104,137 @@ body {
     0%, 50% { opacity: 1; }
     51%, 100% { opacity: 0; }
 }
+
+/* Classes pour Foudubus 
+.foudubus {
+    background-image: url('/assets/img/foudubus/to-left/toleft-foudubus-classique-1.svg');
+}
+
+.foudubus.classique1 {
+    background-image: url('/assets/img/foudubus/to-left/toleft-foudubus-classique-1.svg');
+}
+
+.foudubus.classique2 {
+    background-image: url('/assets/img/foudubus/to-right/toright-foudubus-classique-1.svg');
+}
+
+.foudubus.attacking1 {
+    background-image: url('/assets/img/foudubus/to-left/toleft-foudubus-attaque-1.svg');
+}
+
+.foudubus.attacking2 {
+    background-image: url('/assets/img/foudubus/to-left/toleft-foudubus-attaque-2.svg');
+}
+
+.foudubus.attacking3 {
+    background-image: url('/assets/img/foudubus/to-left/toleft-foudubus-attaque-3.svg');
+}
+
+.foudubus.idle {
+    background-image: url('/assets/img/foudubus/to-left/toleft-foudubus-classique-1.svg');
+}
+
+.smehlee {
+    background-image: url('/assets/img/smehlee/to-left/toleft-smehlee-classique-1.svg');
+}
+
+.smehlee.classique1 {
+    background-image: url('/assets/img/smehlee/to-left/toleft-smehlee-classique-1.svg');
+}
+
+.smehlee.classique2 {
+    background-image: url('/assets/img/smehlee/to-right/toright-smehlee-classique-1.svg');
+}
+
+.smehlee.attacking1 {
+    background-image: url('/assets/img/smehlee/to-left/toleft-smehlee-attaque-1.svg');
+}
+
+.smehlee.attacking2 {
+    background-image: url('/assets/img/smehlee/to-left/toleft-smehlee-attaque-2.svg');
+}
+
+.smehlee.attacking3 {
+    background-image: url('/assets/img/smehlee/to-left/toleft-smehlee-attaque-3.svg');
+}
+
+.smehlee.idle {
+    background-image: url('/assets/img/smehlee/to-left/toleft-smehlee-classique-1.svg');
+}*/
+/* Classes pour Foudubus */
+.foudubus.toleft.classique1 {
+    background-image: url('/assets/img/foudubus/to-left/toleft-foudubus-classique-1.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+.foudubus.toleft.classique2 {
+    background-image: url('/assets/img/foudubus/to-left/toleft-foudubus-classique-2.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.foudubus.toleft.attacking1 {
+    background-image: url('/assets/img/foudubus/to-left/toleft-foudubus-attaque-1.svg');
+}
+.foudubus.toleft.attacking2 {
+    background-image: url('/assets/img/foudubus/to-left/toleft-foudubus-attaque-2.svg');
+}
+.foudubus.toleft.attacking3 {
+    background-image: url('/assets/img/foudubus/to-left/toleft-foudubus-attaque-3.svg');
+}
+
+.foudubus.toright.classique1 {
+    background-image: url('/assets/img/foudubus/to-right/toright-foudubus-classique-1.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+.foudubus.toright.classique2 {
+    background-image: url('/assets/img/foudubus/to-right/toright-foudubus-classique-2.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.foudubus.toright.attacking1 {
+    background-image: url('/assets/img/foudubus/to-right/toright-foudubus-attaque-1.svg');
+}
+.foudubus.toright.attacking2 {
+    background-image: url('/assets/img/foudubus/to-right/toright-foudubus-attaque-2.svg');
+}
+.foudubus.toright.attacking3 {
+    background-image: url('/assets/img/foudubus/to-right/toright-foudubus-attaque-3.svg');
+}
+
+/* Classes pour Smehlee */
+.smehlee.toleft.classique1 {
+    background-image: url('/assets/img/smehlee/to-left/toleft-smehlee-classique-1.svg');
+}
+.smehlee.toleft.classique2 {
+    background-image: url('/assets/img/smehlee/to-left/toleft-smehlee-classique-2.svg');
+}
+
+.smehlee.toright.classique1 {
+    background-image: url('/assets/img/smehlee/to-right/toright-smehlee-classique-1.svg');
+}
+.smehlee.toright.classique2 {
+    background-image: url('/assets/img/smehlee/to-right/toright-smehlee-classique-2.svg');
+}
+
+.smehlee.toleft.attacking1 {
+    background-image: url('/assets/img/smehlee/to-left/toleft-smehlee-attaque-1.svg');
+}
+.smehlee.toleft.attacking2 {
+    background-image: url('/assets/img/smehlee/to-left/toleft-smehlee-attaque-2.svg');
+}
+.smehlee.toleft.attacking3 {
+    background-image: url('/assets/img/smehlee/to-left/toleft-smehlee-attaque-3.svg');
+}
+
+.smehlee.toright.attacking1 {
+    background-image: url('/assets/img/smehlee/to-right/toright-smehlee-attaque-1.svg');
+}
+.smehlee.toright.attacking2 {
+    background-image: url('/assets/img/smehlee/to-right/toright-smehlee-attaque-2.svg');
+}
+.smehlee.toright.attacking3 {
+    background-image: url('/assets/img/smehlee/to-right/toright-smehlee-attaque-3.svg');
+}
