@@ -36,4 +36,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Événement : démarre la transition au premier clic
     document.body.addEventListener("click", startTransition);
-});
+});w
