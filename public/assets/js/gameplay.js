@@ -29,7 +29,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 🔹 Récupérer les données stockées
     const selectedCharacter = JSON.parse(localStorage.getItem("player1"));
+    
     const selectedMap = localStorage.getItem("selectedMap");
+    const playerName = localStorage.getItem("playerName"); 
 
     if (!selectedCharacter || !selectedMap) {
         console.error("❌ ERREUR : Données manquantes !");
@@ -38,6 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     console.log("🗺️ Map sélectionnée : ", selectedMap);
     console.log("🦸‍♂️ Personnage sélectionné : ", selectedCharacter);
+    console.log("👤 Nom du joueur : ", playerName);
 
     // 🔹 Appliquer la map en fond
     const gameBackground = document.getElementById("game-background");
@@ -47,18 +50,28 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!gameBackground.style.backgroundImage) {
         console.error("❌ ERREUR : Impossible de charger la carte !");
     }
-
     // 🔹 Générer les classes CSS dynamiques en fonction du personnage
     generateCharacterClasses(selectedCharacter.avatar);
     // 🔹 Envoyer les données du joueur au serveur
-    socket.emit("setPlayerData", { character: selectedCharacter.avatar, map: selectedMap });
+    //socket.emit("setPlayerData", { character: selectedCharacter.avatar, map: selectedMap });
 
-    console.log("🚀 Envoi des données du joueur :", { character: selectedCharacter.avatar, map: selectedMap });
+    socket.emit("setPlayerData", { 
+        character: selectedCharacter.avatar, 
+        map: selectedMap,
+        name: playerName // Envoie le nom du joueur au serveur
+    });
 
+    console.log("🚀 Envoi des données du joueur :", { 
+        character: selectedCharacter.avatar, 
+        map: selectedMap,
+        name: playerName
+    });
     // 🔹 Attendre la mise à jour des joueurs
     socket.on("updatePlayers", (players) => {
         console.log("🎮 Mise à jour des joueurs :", players);
 
+        //barre de vie
+        updateHealthBars(players);
         let firstPlayerId = Object.keys(players)[0]; 
         let firstPlayerCharacter = players[firstPlayerId].character;
 
@@ -66,6 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (Object.keys(players).length === 2) {
             waitingMessage.remove(); // Supprime le message "Le ops arrive..."
         }
+        
 
         Object.keys(players).forEach((id) => {
             let playerDiv = document.getElementById(id);
@@ -88,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 playerDiv.classList.add("foudubus");
             }
             // 🔹 Mettre à jour l'animation
-            updatePlayerAnimation(id, players[id]);
+           updatePlayerAnimation(id, players[id]);
         });
     });
 
@@ -98,38 +112,71 @@ document.addEventListener("DOMContentLoaded", function () {
             socket.emit("move", { direction: "left" });
         } else if (event.key === "ArrowRight") {
             socket.emit("move", { direction: "right" });
-        } else if (event.key === " ") { // Touche espace pour attaquer
+        } else if (event.key === " ") { 
             socket.emit("attack");
         }
     });
 
-    /*function updatePlayerAnimation(playerId, playerData) {
-        const player = document.getElementById(playerId);
+    /*function updateHealthBars(players) {
+        const player1HealthBar = document.querySelector("#player1-health .health-bar");
+        const player2HealthBar = document.querySelector("#player2-health .health-bar");
+        const player1Name = document.querySelector("#player1-health .player-name");
+        const player2Name = document.querySelector("#player2-health .player-name");
     
-        if (!player) return;
+        if (player1HealthBar && player2HealthBar && player1Name && player2Name) {
+            const player1 = players.player1;
+            const player2 = players.player2;
     
-        // Réinitialiser toutes les classes d'animation
-        player.classList.remove("classique1", "classique2", "idle", "attacking1", "attacking2", "attacking3");
-    
-        // Appliquer les classes en fonction de l'état du joueur
-        if (playerData.animation === "walking") {
-            if (playerData.direction === "left") {
-                player.classList.add("classique1"); // Animation vers la gauche
-            } else if (playerData.direction === "right") {
-                player.classList.add("classique2"); // Animation vers la droite
+            if (player1) {
+                const healthPercentage1 = (player1.hp / 100) * 100;
+                player1HealthBar.style.width = `${healthPercentage1}%`;
+                player1HealthBar.style.backgroundColor = healthPercentage1 > 50 ? "green" : healthPercentage1 > 20 ? "orange" : "red";
+                player1Name.textContent = player1.name;
             }
-        } else if (playerData.animation === "attacking") {
-            playAttackAnimation(playerId);
+    
+            if (player2) {
+                const healthPercentage2 = (player2.hp / 100) * 100;
+                player2HealthBar.style.width = `${healthPercentage2}%`;
+                player2HealthBar.style.backgroundColor = healthPercentage2 > 50 ? "green" : healthPercentage2 > 20 ? "orange" : "red";
+                player2Name.textContent = player2.name;
+            }
         } else {
-            player.classList.add("idle"); // Animation au repos
+            console.error("❌ Éléments des barres de vie non trouvés !");
         }
     }*/
+        function updateHealthBars(players) {
+            const player1HealthBar = document.querySelector("#player1-health .health-bar");
+            const player2HealthBar = document.querySelector("#player2-health .health-bar");
+            const player1Name = document.querySelector("#player1-health .player-name");
+            const player2Name = document.querySelector("#player2-health .player-name");
     
-    /*function updatePlayerAnimation(playerId, playerData) {
+            if (player1HealthBar && player2HealthBar && player1Name && player2Name) {
+                const player1 = players[Object.keys(players)[0]]; // Premier joueur
+                const player2 = players[Object.keys(players)[1]]; // Deuxième joueur
+    
+                if (player1) {
+                    const healthPercentage1 = (player1.hp / 100) * 100;
+                    player1HealthBar.style.width = `${healthPercentage1}%`;
+                    player1HealthBar.style.backgroundColor = healthPercentage1 > 50 ? "green" : healthPercentage1 > 20 ? "orange" : "red";
+                    player1Name.textContent = player1.name; // Met à jour le nom du joueur 1
+                }
+    
+                if (player2) {
+                    const healthPercentage2 = (player2.hp / 100) * 100;
+                    player2HealthBar.style.width = `${healthPercentage2}%`;
+                    player2HealthBar.style.backgroundColor = healthPercentage2 > 50 ? "green" : healthPercentage2 > 20 ? "orange" : "red";
+                    player2Name.textContent = player2.name; // Met à jour le nom du joueur 2
+                }
+            } else {
+                console.error("❌ Éléments des barres de vie non trouvés !");
+            }
+        }
+ 
+    function updatePlayerAnimation(playerId, playerData) {
         const player = document.getElementById(playerId);
-    
+
         if (!player) return;
-    
+
         // Réinitialiser toutes les classes d'animation
         player.classList.remove(
             "toleft", "toright", 
@@ -137,21 +184,16 @@ document.addEventListener("DOMContentLoaded", function () {
             "idle", 
             "attacking1", "attacking2", "attacking3"
         );
-    
+
         // Appliquer la direction
         if (playerData.direction === "left") {
-            player.classList.add("toright"); // Utiliser les images "toleft"
+            player.classList.add("toright"); // Regarde vers la gauche
         } else if (playerData.direction === "right") {
-            player.classList.add("toleft"); // Utiliser les images "toright"
+            player.classList.add("toleft"); // Regarde vers la droite
         }
-    
-        
 
         // Appliquer les classes en fonction de l'état du joueur
         if (playerData.animation === "walking") {
-            player.classList.remove("classique1", "classique2");
-
-            // Alterner entre classique1 et classique2 pour l'animation de marche
             if (player.classList.contains("classique1")) {
                 player.classList.remove("classique1");
                 player.classList.add("classique2");
@@ -164,43 +206,7 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             player.classList.add("idle");
         }
-    }*/
-
-        function updatePlayerAnimation(playerId, playerData) {
-            const player = document.getElementById(playerId);
-        
-            if (!player) return;
-        
-            // Réinitialiser toutes les classes d'animation
-            player.classList.remove(
-                "toleft", "toright", 
-                "classique1", "classique2", 
-                "idle", 
-                "attacking1", "attacking2", "attacking3"
-            );
-        
-            // Appliquer la direction
-            if (playerData.direction === "left") {
-                player.classList.add("toright"); // Regarde vers la gauche
-            } else if (playerData.direction === "right") {
-                player.classList.add("toleft"); // Regarde vers la droite
-            }
-        
-            // Appliquer les classes en fonction de l'état du joueur
-            if (playerData.animation === "walking") {
-                if (player.classList.contains("classique1")) {
-                    player.classList.remove("classique1");
-                    player.classList.add("classique2");
-                } else {
-                    player.classList.remove("classique2");
-                    player.classList.add("classique1");
-                }
-            } else if (playerData.animation === "attacking") {
-                playAttackAnimation(playerId);
-            } else {
-                player.classList.add("idle");
-            }
-        }
+    }
     function startWalkingAnimation(player) {
         // Vérifier si une animation est déjà en cours
         if (player.walkingInterval) return;
@@ -250,35 +256,49 @@ document.addEventListener("DOMContentLoaded", function () {
             player.classList.remove("attacking3");
         }, 300);
     }
-      // 🔹 Fonction pour générer les classes CSS dynamiques
-      /*function generateCharacterClasses(character) {
-        const isSmehlee = character.includes("smehlee");
-        const prefix = isSmehlee ? "smehlee" : "foudubus";
-    
-        const style = document.createElement("style");
-        style.innerHTML = `
-            .classique1 {
-                background-image: url('/assets/img/${prefix}/to-left/toleft-${prefix}-classique-1.svg');
-            }
-            .classique2 {
-                background-image: url('/assets/img/${prefix}/to-right/toright-${prefix}-classique-1.svg');
-            }
-            .attacking1 {
-                background-image: url('/assets/img/${prefix}/to-left/toleft-${prefix}-attaque-1.svg');
-            }
-            .attacking2 {
-                background-image: url('/assets/img/${prefix}/to-left/toleft-${prefix}-attaque-2.svg');
-            }
-            .attacking3 {
-                background-image: url('/assets/img/${prefix}/to-left/toleft-${prefix}-attaque-3.svg');
-            }
-            .idle {
-                background-image: url('/assets/img/${prefix}/to-left/toleft-${prefix}-classique-1.svg');
-            }
-        `;
-        document.head.appendChild(style);
-    }*/
-    
+    /*
+        function generateCharacterClasses(character) {
+            const isSmehlee = character.includes("smehlee");
+            const prefix = isSmehlee ? "smehlee" : "foudubus";
+        
+            const style = document.createElement("style");
+            style.innerHTML = `
+                .${prefix}.toleft.classique1 {
+                    background-image: url('/assets/img/${prefix}/to-left/toleft-${prefix}-classique-1.svg');
+                }
+                .${prefix}.toleft.classique2 {
+                    background-image: url('/assets/img/${prefix}/to-left/toleft-${prefix}-classique-2.svg');
+                }
+                .${prefix}.toright.classique1 {
+                    background-image: url('/assets/img/${prefix}/to-right/toright-${prefix}-classique-1.svg');
+                }
+                .${prefix}.toright.classique2 {
+                    background-image: url('/assets/img/${prefix}/to-right/toright-${prefix}-classique-2.svg');
+                }
+                .${prefix}.toleft.attacking1 {
+                    background-image: url('/assets/img/${prefix}/to-left/toleft-${prefix}-attaque-1.svg');
+                }
+                .${prefix}.toleft.attacking2 {
+                    background-image: url('/assets/img/${prefix}/to-left/toleft-${prefix}-attaque-2.svg');
+                }
+                .${prefix}.toleft.attacking3 {
+                    background-image: url('/assets/img/${prefix}/to-left/toleft-${prefix}-attaque-3.svg');
+                }
+                .${prefix}.toright.attacking1 {
+                    background-image: url('/assets/img/${prefix}/to-right/toright-${prefix}-attaque-1.svg');
+                }
+                .${prefix}.toright.attacking2 {
+                    background-image: url('/assets/img/${prefix}/to-right/toright-${prefix}-attaque-2.svg');
+                }
+                .${prefix}.toright.attacking3 {
+                    background-image: url('/assets/img/${prefix}/to-right/toright-${prefix}-attaque-3.svg');
+                }
+                .${prefix}.idle {
+                    background-image: url('/assets/img/${prefix}/to-left/toleft-${prefix}-classique-1.svg');
+                }
+            `;
+            document.head.appendChild(style);
+        }*/
         function generateCharacterClasses(character) {
             const isSmehlee = character.includes("smehlee");
             const prefix = isSmehlee ? "smehlee" : "foudubus";
@@ -321,4 +341,5 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
             document.head.appendChild(style);
         }
+        
 });

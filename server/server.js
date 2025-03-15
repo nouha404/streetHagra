@@ -39,6 +39,7 @@ io.on("connection", (socket) => {
             y: 500,
             hp: 100,
             character: playerData.character,
+            name: playerData.name,
             animation: "idle", // Animation initiale
             direction: "right", // Direction initiale
         };

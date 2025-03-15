@@ -238,3 +238,47 @@ body {
 .smehlee.toright.attacking3 {
     background-image: url('/assets/img/smehlee/to-right/toright-smehlee-attaque-3.svg');
 }
+.health-bar-container {
+    position: absolute; /* Changé de fixed à absolute pour un meilleur contrôle */
+    top: 20px;
+    width: 300px;
+    height: 30px;
+    background-color: #333;
+    border: 2px solid #000;
+    border-radius: 5px;
+    overflow: hidden;
+    z-index: 1000; /* Assurez-vous que les barres de vie sont au-dessus des autres éléments */
+}
+
+.health-bar {
+    height: 100%;
+    background-color: green;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+#player1-health {
+    left: 20px;
+}
+
+#player2-health {
+    right: 20px;
+}
+
+.player-name {
+    position: absolute;
+    top: -25px; 
+    left: 0;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border: 5px dashed red; 
+    z-index: 1001;
+}
+
+.player1-status {
+    color: green;
+}
+
+.player2-status {
+    color: red;
+}
