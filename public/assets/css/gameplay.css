@@ -141,15 +141,14 @@ body {
 /* Barres de statut */
 .health-bar-container {
     position: fixed;
-    bottom: 20px;
-    width: 400px;
+    top: 20px;
+    width: 300px;
     z-index: 100;
     padding: 15px;
     background: rgba(0, 0, 0, 0.8);
     border-radius: 15px;
     border: 3px solid rgba(255, 255, 255, 0.6);
     box-shadow: 0 0 25px rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(5px);
 }
 
 /* Groupe de barres de statut */
@@ -163,6 +162,7 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
+    height: 30px;
 }
 
 .bar-label {
@@ -177,22 +177,63 @@ body {
 }
 
 #player1-health {
-    left: 50%;
-    transform: translateX(-420px);
+    left: 20px;
 }
 
 #player2-health {
-    left: 50%;
-    transform: translateX(20px);
+    right: 20px;
 }
 
-.player-name {
-    color: white;
-    font-size: 20px;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+/* Barre de vie */
+.health-bar {
+    flex: 1;
+    height: 25px;
+    background: linear-gradient(to right, #2ecc71, #27ae60);
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+    transition: width 0.3s ease, background 0.3s ease;
+}
+
+/* Animation de dégâts */
+@keyframes takeDamage {
+    0% { transform: translateY(0) scale(1); box-shadow: 0 0 0 rgba(231, 76, 60, 0); }
+    20% { transform: translateY(8px) scale(1.05); box-shadow: 0 0 20px rgba(231, 76, 60, 0.8); }
+    40% { transform: translateY(-6px) scale(0.95); box-shadow: 0 0 15px rgba(231, 76, 60, 0.6); }
+    60% { transform: translateY(4px) scale(1.02); box-shadow: 0 0 10px rgba(231, 76, 60, 0.4); }
+    80% { transform: translateY(-2px) scale(0.98); box-shadow: 0 0 5px rgba(231, 76, 60, 0.2); }
+    100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 rgba(231, 76, 60, 0); }
+}
+
+@keyframes damageFlash {
+    0% { background: rgba(231, 76, 60, 0); filter: brightness(1); }
+    20% { background: rgba(231, 76, 60, 0.4); filter: brightness(1.2); }
+    100% { background: rgba(231, 76, 60, 0); filter: brightness(1); }
+}
+
+@keyframes criticalShake {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    10% { transform: translateX(-10px) rotate(-2deg); }
+    30% { transform: translateX(8px) rotate(2deg); }
+    50% { transform: translateX(-6px) rotate(-1deg); }
+    70% { transform: translateX(4px) rotate(1deg); }
+    90% { transform: translateX(-2px) rotate(0deg); }
+}
+
+.health-bar-container.taking-damage {
+    animation: damageFlash 0.4s ease-out;
+}
+
+.health-bar-container.taking-damage .health-bar {
+    animation: takeDamage 0.4s cubic-bezier(0.36, 0, 0.66, -0.56);
+    animation-fill-mode: forwards;
+}
+
+.health-bar-container.critical-hit {
+    animation: criticalShake 0.5s cubic-bezier(0.36, 0, 0.66, -0.56);
+    animation-fill-mode: forwards;
 }
 
 /* Barre de vie */
@@ -200,15 +241,19 @@ body {
     flex: 1;
     height: 30px;
     background: linear-gradient(to right, #2ecc71, #27ae60);
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(46, 204, 113, 0.7);
-    border: 3px solid rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     position: relative;
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              background 0.3s ease,
+              transform 0.3s ease,
+              box-shadow 0.3s ease;
+    transform-origin: left;
+    width: 100%;
 }
 
-/* Animation de dégâts pour la barre de vie */
 .health-bar::after {
     content: '';
     position: absolute;
@@ -231,15 +276,56 @@ body {
 /* Barre de mana */
 .mana-bar {
     flex: 1;
-    height: 25px;
+    height: 30px;
     background: linear-gradient(to right, #3498db, #2980b9);
-    border-radius: 12px;
-    box-shadow: 0 0 15px rgba(52, 152, 219, 0.8);
-    width: 0%;
-    transition: all 0.3s ease;
-    border: 3px solid #4fc3f7;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     position: relative;
     overflow: hidden;
+    transition: width 0.3s ease;
+}
+
+.mana-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0) 100%);
+    animation: manaFlow 2s infinite linear;
+}
+
+@keyframes manaFlow {
+    0% { transform: translateX(-100%) skewX(-15deg); }
+    100% { transform: translateX(100%) skewX(-15deg); }
+}
+
+/* Animation de lueur pour la barre de mana */
+@keyframes manaGlow {
+    0% { box-shadow: 0 0 15px rgba(52, 152, 219, 0.3); }
+    50% { box-shadow: 0 0 25px rgba(52, 152, 219, 0.8); }
+    100% { box-shadow: 0 0 15px rgba(52, 152, 219, 0.3); }
+}
+
+.mana-bar.full {
+    animation: manaGlow 2s infinite;
+    background: linear-gradient(to right, #3498db, #2980b9);
+}
+
+/* Animation de dégâts pour la barre de vie */
+@keyframes damageFlash {
+    0% { box-shadow: 0 0 15px rgba(231, 76, 60, 0.3); }
+    50% { box-shadow: 0 0 25px rgba(231, 76, 60, 0.8); transform: scale(1.02); }
+    100% { box-shadow: 0 0 15px rgba(231, 76, 60, 0.3); }
+}
+
+.health-bar.damaged {
+    animation: damageFlash 0.3s ease-in-out;
 }
 
 /* Effet de remplissage pour la barre de mana */
@@ -666,8 +752,8 @@ body {
 .health-bar-container {
     position: absolute; /* Changé de fixed à absolute pour un meilleur contrôle */
     top: 20px;
-    width: 300px;
-    height: 30px;
+    width: 350px;
+    height: 90px;
     background-color: #333;
     border: 2px solid #000;
     border-radius: 5px;

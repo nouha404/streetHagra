@@ -3,9 +3,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const socket = io();
     const gameContainer = document.getElementById("game-container");
     
-    // Initialiser les barres de mana
+    // Initialiser les barres de statut
+    const player1Health = document.getElementById('player1-health');
+    const player2Health = document.getElementById('player2-health');
+    const player1HealthBar = document.querySelector("#player1-health .health-bar");
+    const player2HealthBar = document.querySelector("#player2-health .health-bar");
     const player1ManaBar = document.querySelector("#player1-health .mana-bar");
     const player2ManaBar = document.querySelector("#player2-health .mana-bar");
+
+    // Initialiser les barres au démarrage
+    if (player1Health) player1Health.style.display = 'none';
+    if (player2Health) player2Health.style.display = 'none';
+    if (player1HealthBar) player1HealthBar.style.width = "100%";
+    if (player2HealthBar) player2HealthBar.style.width = "100%";
     if (player1ManaBar) player1ManaBar.style.width = "0%";
     if (player2ManaBar) player2ManaBar.style.width = "0%";
     
@@ -20,24 +30,47 @@ document.addEventListener("DOMContentLoaded", function () {
     // Mettre à jour les barres de vie et de mana
     const updateStatusBars = (playerId, hp, mana) => {
         const playerIndex = playerId === socket.id ? '1' : '2';
-        const healthBar = document.querySelector(`#player${playerIndex}-health .health-bar`);
-        const manaBar = document.querySelector(`#player${playerIndex}-health .mana-bar`);
+        const healthBarContainer = document.querySelector(`#player${playerIndex}-health`);
+        const healthBar = healthBarContainer.querySelector('.health-bar');
+        const manaBar = healthBarContainer.querySelector('.mana-bar');
 
         if (healthBar) {
-            healthBar.style.width = `${hp}%`;
-            if (hp <= 20) {
-                healthBar.style.background = 'linear-gradient(to right, #e74c3c, #c0392b)';
-            } else if (hp <= 50) {
-                healthBar.style.background = 'linear-gradient(to right, #f39c12, #d35400)';
-            } else {
-                healthBar.style.background = 'linear-gradient(to right, #2ecc71, #27ae60)';
-            }
+            // Calculer la nouvelle largeur de la barre de vie
+            const currentWidth = parseFloat(healthBar.style.width) || 100;
+            const newWidth = Math.max(0, Math.min(100, hp));
+            
+            // Mettre à jour la largeur avec animation
+            requestAnimationFrame(() => {
+                healthBar.style.width = `${newWidth}%`;
+                
+                // Ajouter l'effet de dégâts si les PV diminuent
+                if (newWidth < currentWidth) {
+                    healthBar.classList.remove('damaged');
+                    void healthBar.offsetWidth; // Force le reflow
+                    healthBar.classList.add('damaged');
+                }
+                
+                // Changer la couleur de la barre de vie
+                let gradient;
+                if (newWidth <= 20) {
+                    gradient = 'linear-gradient(to right, #e74c3c, #c0392b)';
+                } else if (newWidth <= 50) {
+                    gradient = 'linear-gradient(to right, #f39c12, #d35400)';
+                } else {
+                    gradient = 'linear-gradient(to right, #2ecc71, #27ae60)';
+                }
+                healthBar.style.background = gradient;
+            });
         }
 
         if (manaBar) {
-            // S'assurer que la barre de mana est visible
-            manaBar.style.display = 'block';
             manaBar.style.width = `${mana}%`;
+            // Ajouter l'effet de lueur quand le mana est plein
+            if (mana >= 100) {
+                manaBar.classList.add('full');
+            } else {
+                manaBar.classList.remove('full');
+            }
             
             // Mettre à jour l'apparence en fonction du niveau de mana
             if (mana >= 100) {
@@ -137,11 +170,51 @@ document.addEventListener("DOMContentLoaded", function () {
     gameOverScreen.style.display = 'none';
     gameContainer.appendChild(gameOverScreen);
 
+    // Écouter les événements d'attaque
+    socket.on("attackResult", (result) => {
+        if (result.damage && result.defenderId) {
+            const defender = players[result.defenderId];
+            if (defender) {
+                // Trouver le conteneur de la barre de vie du défenseur
+                const playerIndex = result.defenderId === socket.id ? '1' : '2';
+                const healthContainer = document.getElementById(`player${playerIndex}-health`);
+
+                if (healthContainer) {
+                    // Déclencher l'animation de dégâts
+                    healthContainer.classList.add('taking-damage');
+                    
+                    // Retirer la classe après l'animation
+                    setTimeout(() => {
+                        healthContainer.classList.remove('taking-damage');
+                    }, 400); // Durée de l'animation
+                }
+
+                // Mettre à jour la barre de vie
+                updateStatusBars(result.defenderId, defender.hp, defender.mana);
+                
+                // Jouer le son d'attaque
+                if (result.isCritical) {
+                    criticalSound.currentTime = 0;
+                    criticalSound.play();
+                } else {
+                    attackSound.currentTime = 0;
+                    attackSound.play();
+                }
+            }
+        }
+    });
+
     socket.on("updatePlayers", (players) => {
         console.log("🎮 Mise à jour des joueurs :", players);
 
         // Vérifier combien de joueurs sont connectés
+        const player1Health = document.getElementById('player1-health');
+        const player2Health = document.getElementById('player2-health');
+
         if (Object.keys(players).length === 2) {
+            // Afficher les barres de statut quand les deux joueurs sont connectés
+            if (player1Health) player1Health.style.display = 'block';
+            if (player2Health) player2Health.style.display = 'block';
             waitingMessage?.remove(); // Supprime le message "Le ops arrive..."
         }
 
@@ -242,7 +315,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     blockSound.play().catch(console.error);
                 }
                 break;
-            case "m":
+            case "c":
                 const manaBar = document.querySelector(`#mana-${socket.id}`);
                 if (!isGlobalAttacking && manaBar && parseFloat(manaBar.style.width) >= 100) {
                     isGlobalAttacking = true;
@@ -277,31 +350,63 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
         function updateHealthBars(players) {
-            const player1HealthBar = document.querySelector("#player1-health .health-bar");
-            const player2HealthBar = document.querySelector("#player2-health .health-bar");
-            const player1Name = document.querySelector("#player1-health .player-name");
-            const player2Name = document.querySelector("#player2-health .player-name");
-    
-            if (player1HealthBar && player2HealthBar && player1Name && player2Name) {
-                const player1 = players[Object.keys(players)[0]]; // Premier joueur
-                const player2 = players[Object.keys(players)[1]]; // Deuxième joueur
-    
-                if (player1) {
-                    const healthPercentage1 = (player1.hp / 100) * 100;
-                    player1HealthBar.style.width = `${healthPercentage1}%`;
-                    player1HealthBar.style.backgroundColor = healthPercentage1 > 50 ? "green" : healthPercentage1 > 20 ? "orange" : "red";
-                    player1Name.textContent = player1.name; // Met à jour le nom du joueur 1
-                }
-    
-                if (player2) {
-                    const healthPercentage2 = (player2.hp / 100) * 100;
-                    player2HealthBar.style.width = `${healthPercentage2}%`;
-                    player2HealthBar.style.backgroundColor = healthPercentage2 > 50 ? "green" : healthPercentage2 > 20 ? "orange" : "red";
-                    player2Name.textContent = player2.name; // Met à jour le nom du joueur 2
-                }
-            } else {
-                console.error("❌ Éléments des barres de vie non trouvés !");
+            if (!players || Object.keys(players).length === 0) {
+                console.error("❔ Aucun joueur à mettre à jour !");
+                return;
             }
+
+            Object.entries(players).forEach(([playerId, playerData], index) => {
+                const playerIndex = index + 1;
+                const healthBarContainer = document.querySelector(`#player${playerIndex}-health`);
+                const healthBar = healthBarContainer?.querySelector('.health-bar');
+                const playerName = healthBarContainer?.querySelector('.player-name');
+
+                if (!healthBar || !playerName) {
+                    console.error(`❔ Éléments de la barre de vie non trouvés pour le joueur ${playerIndex}`);
+                    return;
+                }
+
+                const oldWidth = parseFloat(healthBar.style.width) || 100;
+                const newWidth = Math.max(0, Math.min(100, playerData.hp));
+
+                // Ajouter l'effet de dégâts si les PV diminuent
+                if (newWidth < oldWidth) {
+                    healthBar.classList.remove('damaged');
+                    void healthBar.offsetWidth; // Force le reflow
+                    healthBar.classList.add('damaged');
+                    
+                    // Ajouter l'effet de tremblement pour les coups critiques
+                    if (oldWidth - newWidth >= 20) {
+                        healthBarContainer.classList.add('critical-hit');
+                        setTimeout(() => {
+                            healthBarContainer.classList.remove('critical-hit');
+                        }, 500);
+                    }
+                }
+
+                // Mettre à jour la largeur avec animation
+                requestAnimationFrame(() => {
+                    healthBar.style.width = `${newWidth}%`;
+                    
+                    // Mise à jour du style de la barre de vie selon le niveau de santé
+                    let gradient, shadowColor;
+                    if (newWidth <= 20) {
+                        gradient = 'linear-gradient(to right, #e74c3c, #c0392b)';
+                        shadowColor = 'rgba(231, 76, 60, 0.7)';
+                    } else if (newWidth <= 50) {
+                        gradient = 'linear-gradient(to right, #f39c12, #d35400)';
+                        shadowColor = 'rgba(243, 156, 18, 0.7)';
+                    } else {
+                        gradient = 'linear-gradient(to right, #2ecc71, #27ae60)';
+                        shadowColor = 'rgba(46, 204, 113, 0.7)';
+                    }
+                    
+                    healthBar.style.background = gradient;
+                    healthBar.style.boxShadow = `0 0 15px ${shadowColor}`;
+                });
+
+                playerName.textContent = playerData.name;
+            });
         }
  
     let isAnimating = false;
