@@ -27,16 +27,20 @@ module.exports = {
         // Gestion du blocage
         if (defender.isBlocking) {
             console.log("🛡️ Attaque bloquée !");
+            defender.animation = "shield";
+            
             if (attacker.isCriticalAttack) {
-                attacker.mana = 0; // Perte de tout le mana si coup critique bloqué
+                attacker.mana = 0;
                 attacker.consecutiveHits = 0;
             }
-            // Contre-attaque possible si le timing est bon (20% de chance)
+            
+            // Contre-attaque possible (20% de chance)
             if (Math.random() < 0.2) {
                 attacker.hp = Math.max(0, attacker.hp - 15);
                 console.log("⚡️ Contre-attaque réussie !");
                 return { blocked: true, counterAttack: true };
             }
+            
             return { blocked: true };
         }
 
@@ -95,34 +99,15 @@ module.exports = {
         const player = players[playerId];
         if (!player) return;
 
+        player.isBlocking = isStarting;
+        player.animation = isStarting ? "block1" : "classique1";
+        
         if (isStarting) {
-            if (!player.blockCooldown) {
-                player.isBlocking = true;
-                player.blockCooldown = true;
-                player.animation = "block1";
-                
-                // Animation de blocage
-                setTimeout(() => {
-                    if (players[playerId] && players[playerId].isBlocking) {
-                        players[playerId].animation = "block2";
-                    }
-                }, 100);
-
-                // Cooldown du blocage
-                setTimeout(() => {
-                    if (players[playerId]) {
-                        players[playerId].blockCooldown = false;
-                    }
-                }, 2000); // Cooldown réduit pour plus de dynamisme
-            }
-        } else {
-            player.isBlocking = false;
-            player.animation = "classique1";
-        }
-
-        // Récupération lente du mana pendant le blocage
-        if (player.isBlocking) {
-            player.mana = Math.min(100, player.mana + 5);
+            setTimeout(() => {
+                if (players[playerId]?.isBlocking) {
+                    players[playerId].animation = "block2";
+                }
+            }, 200);
         }
     }
 };

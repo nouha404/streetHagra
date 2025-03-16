@@ -155,20 +155,7 @@ io.on("connection", (socket) => {
 
     socket.on("block", (data) => {
         if (!players[socket.id]) return;
-
         game.handleBlock(socket.id, players, data.isStarting);
-        
-        if (data.isStarting) {
-            players[socket.id].animation = "block1";
-            setTimeout(() => {
-                if (players[socket.id] && players[socket.id].isBlocking) {
-                    players[socket.id].animation = "block2";
-                }
-            }, 100);
-        } else {
-            players[socket.id].animation = "classique1";
-        }
-
         io.emit("updatePlayers", players);
     });
 
@@ -181,6 +168,12 @@ io.on("connection", (socket) => {
     // Gestion de la déconnexion
     socket.on("disconnect", () => {
         console.log(`🔴 Joueur déconnecté : ${socket.id}`);
+        
+        // Nettoyer l'intervalle de blocage s'il existe
+        if (players[socket.id] && players[socket.id].blockInterval) {
+            clearInterval(players[socket.id].blockInterval);
+        }
+        
         delete players[socket.id];
 
         // Informer l'autre joueur s'il reste seul

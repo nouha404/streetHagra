@@ -328,47 +328,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Gérer les animations
         if (playerData.hp <= 0) {
-            player.classList.remove('classique1', 'attacking1', 'attacking2', 'attacking3', 'block1', 'block2', 'shield');
+            player.classList.remove('classique1', 'block1', 'block2', 'shield');
             player.classList.add('ko');
             player.style.pointerEvents = 'none';
         } else if (playerData.isBlocking) {
-            player.classList.remove('classique1', 'attacking1', 'attacking2', 'attacking3', 'ko');
-            player.classList.add(playerData.animation || 'block1', 'shield');
+            player.classList.remove('classique1');
+            if (playerData.animation === 'shield') {
+                player.classList.remove('block1', 'block2');
+                player.classList.add('shield');
+            } else {
+                player.classList.remove('shield');
+                player.classList.add(playerData.animation);
+            }
         } else if (playerData.animation === "attacking" && !isAnimating) {
             isAnimating = true;
             
             // Animation d'attaque fluide
             const attackSequence = async () => {
-                // Début de l'attaque
-                player.classList.remove('classique1', 'block1', 'block2', 'shield', 'ko');
+                player.classList.remove('classique1', 'block1', 'block2', 'bouclier');
                 player.classList.add('attacking1');
                 await new Promise(resolve => setTimeout(resolve, 150));
 
-                // Milieu de l'attaque
-                if (player && player.classList.contains('attacking1')) {
+                if (player) {
                     player.classList.remove('attacking1');
                     player.classList.add('attacking2');
                     await new Promise(resolve => setTimeout(resolve, 150));
                 }
 
-                // Fin de l'attaque
-                if (player && player.classList.contains('attacking2')) {
+                if (player) {
                     player.classList.remove('attacking2');
                     player.classList.add('attacking3');
                     await new Promise(resolve => setTimeout(resolve, 150));
                 }
 
-                // Retour à l'état normal en douceur
-                if (player && player.classList.contains('attacking3')) {
-                    player.style.transition = 'all 0.1s ease-out';
+                if (player) {
                     player.classList.remove('attacking3');
                     player.classList.add('classique1');
-                    
-                    // Réinitialiser la transition après un court délai
-                    setTimeout(() => {
-                        player.style.transition = '';
-                        isAnimating = false;
-                    }, 100);
+                    isAnimating = false;
                 } else {
                     isAnimating = false;
                 }
@@ -382,7 +378,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             });
         } else if (!isAnimating) {
-            player.classList.remove('attacking1', 'attacking2', 'attacking3', 'block1', 'block2', 'shield', 'ko');
+            player.classList.remove('attacking1', 'attacking2', 'attacking3', 'block1', 'block2', 'bouclier', 'ko');
             player.classList.add('classique1');
         }
 
