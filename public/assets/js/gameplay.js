@@ -205,13 +205,16 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    // Variable pour suivre l'état global de l'attaque
+    let isGlobalAttacking = false;
+
     // Fonction pour gérer les événements clavier
     const handleKeyDown = (event) => {
         const player = document.getElementById(socket.id);
         if (!player || player.classList.contains('ko')) return;
 
         // Empêcher les actions pendant une attaque
-        if (player.isAttacking) return;
+        if (isGlobalAttacking || player.isAttacking) return;
 
         switch (event.key.toLowerCase()) {
             case "arrowleft":
@@ -221,20 +224,34 @@ document.addEventListener("DOMContentLoaded", function () {
                 socket.emit("move", { direction: "right" });
                 break;
             case " ":
-                if (!player.isAttacking) {
+                if (!isGlobalAttacking && !player.isAttacking) {
+                    isGlobalAttacking = true;
                     socket.emit("attack");
+                    attackSound.currentTime = 0;
                     attackSound.play().catch(console.error);
+                    // Réinitialiser l'état global après un délai
+                    setTimeout(() => {
+                        isGlobalAttacking = false;
+                    }, 500); // Délai légèrement plus long que l'animation
                 }
                 break;
             case "b":
-                socket.emit("block", { isStarting: true });
-                blockSound.play().catch(console.error);
+                if (!isGlobalAttacking) {
+                    socket.emit("block", { isStarting: true });
+                    blockSound.currentTime = 0;
+                    blockSound.play().catch(console.error);
+                }
                 break;
             case "m":
                 const manaBar = document.querySelector(`#mana-${socket.id}`);
-                if (manaBar && parseFloat(manaBar.style.width) >= 100) {
+                if (!isGlobalAttacking && manaBar && parseFloat(manaBar.style.width) >= 100) {
+                    isGlobalAttacking = true;
                     socket.emit("criticalAttack");
+                    criticalSound.currentTime = 0;
                     criticalSound.play().catch(console.error);
+                    setTimeout(() => {
+                        isGlobalAttacking = false;
+                    }, 500);
                 }
                 break;
         }
@@ -287,6 +304,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
  
+    let isAnimating = false;
+
     function updatePlayerAnimation(playerId, playerData) {
         const player = document.getElementById(playerId);
         if (!player) return;
@@ -295,156 +314,86 @@ document.addEventListener("DOMContentLoaded", function () {
         player.style.display = 'block';
         player.style.visibility = 'visible';
         player.style.opacity = '1';
-        player.style.pointerEvents = 'auto';
 
-        // Initialiser l'état d'attaque si nécessaire
-        if (typeof player.isAttacking === 'undefined') {
-            player.isAttacking = false;
+        // S'assurer que le personnage a la bonne classe de base
+        if (playerData.character) {
+            if (!player.classList.contains(playerData.character.includes("smehlee") ? "smehlee" : "foudubus")) {
+                player.classList.add(playerData.character.includes("smehlee") ? "smehlee" : "foudubus");
+            }
         }
 
         // Gérer la direction
         player.classList.remove("toleft", "toright");
-        if (playerData.direction === "left") {
-            player.classList.add("toright");
-        } else {
-            player.classList.add("toleft");
-        }
+        player.classList.add(playerData.direction === "left" ? "toright" : "toleft");
 
         // Gérer les animations
         if (playerData.hp <= 0) {
-            // Animation de KO
+            player.classList.remove('classique1', 'attacking1', 'attacking2', 'attacking3', 'block1', 'block2', 'shield');
             player.classList.add('ko');
-            player.style.pointerEvents = 'none'; // Désactiver les interactions
+            player.style.pointerEvents = 'none';
         } else if (playerData.isBlocking) {
-            // Animation de blocage
-            player.classList.add(playerData.animation || 'block1');
-            player.classList.add('shield');
-        } else if (playerData.animation === "attacking" && !player.isAttacking) {
-            playAttackAnimation(playerId);
-        } else {
-            // Garder l'animation d'attaque si elle est en cours
-            if (!player.isAttacking) {
-                // Retirer uniquement les classes non liées à l'attaque
-                player.classList.remove('block1', 'block2', 'shield', 'ko');
-                player.classList.add(playerData.animation || 'classique1');
-            }
-        }
-
-        // Mettre à jour les barres de statut fixes
-        const healthBar = document.querySelector(`#health-${playerId}`);
-        const manaBar = document.querySelector(`#mana-${playerId}`);
-
-        if (healthBar) {
-            const currentHealth = parseFloat(healthBar.style.width) || 100;
-            const targetHealth = playerData.hp;
-
-            if (currentHealth > targetHealth) {
-                player.classList.add('hit');
-                setTimeout(() => player.classList.remove('hit'), 300);
-            }
-
-            healthBar.style.width = `${targetHealth}%`;
-        }
-
-        if (manaBar) {
-            manaBar.style.width = `${playerData.mana}%`;
+            player.classList.remove('classique1', 'attacking1', 'attacking2', 'attacking3', 'ko');
+            player.classList.add(playerData.animation || 'block1', 'shield');
+        } else if (playerData.animation === "attacking" && !isAnimating) {
+            isAnimating = true;
             
-            if (playerData.mana >= 100) {
-                manaBar.style.boxShadow = '0 0 15px rgba(0, 0, 255, 0.8)';
-            } else {
-                manaBar.style.boxShadow = '0 0 10px rgba(0, 0, 255, 0.5)';
-            }
+            // Animation d'attaque fluide
+            const attackSequence = async () => {
+                // Début de l'attaque
+                player.classList.remove('classique1', 'block1', 'block2', 'shield', 'ko');
+                player.classList.add('attacking1');
+                await new Promise(resolve => setTimeout(resolve, 150));
+
+                // Milieu de l'attaque
+                if (player && player.classList.contains('attacking1')) {
+                    player.classList.remove('attacking1');
+                    player.classList.add('attacking2');
+                    await new Promise(resolve => setTimeout(resolve, 150));
+                }
+
+                // Fin de l'attaque
+                if (player && player.classList.contains('attacking2')) {
+                    player.classList.remove('attacking2');
+                    player.classList.add('attacking3');
+                    await new Promise(resolve => setTimeout(resolve, 150));
+                }
+
+                // Retour à l'état normal en douceur
+                if (player && player.classList.contains('attacking3')) {
+                    player.style.transition = 'all 0.1s ease-out';
+                    player.classList.remove('attacking3');
+                    player.classList.add('classique1');
+                    
+                    // Réinitialiser la transition après un court délai
+                    setTimeout(() => {
+                        player.style.transition = '';
+                        isAnimating = false;
+                    }, 100);
+                } else {
+                    isAnimating = false;
+                }
+            };
+
+            attackSequence().catch(() => {
+                isAnimating = false;
+                if (player) {
+                    player.classList.remove('attacking1', 'attacking2', 'attacking3');
+                    player.classList.add('classique1');
+                }
+            });
+        } else if (!isAnimating) {
+            player.classList.remove('attacking1', 'attacking2', 'attacking3', 'block1', 'block2', 'shield', 'ko');
+            player.classList.add('classique1');
         }
+
+        // Mettre à jour les barres de statut
+        updateStatusBars(playerId, playerData.hp, playerData.mana);
     }
 
-
-    function playAttackAnimation(playerId) {
-        const player = document.getElementById(playerId);
-        if (!player || player.isAttacking) return;  // Éviter les animations multiples
-
-        // Marquer le début de l'animation
-        player.isAttacking = true;
-
-        // Sauvegarder la direction actuelle
-        const currentDirection = player.classList.contains("toleft") ? "toleft" : "toright";
-
-        // Vérifier si c'est une attaque critique
-        const manaBar = player.querySelector('.mana-bar');
-        const isCritical = manaBar && parseFloat(manaBar.style.width) >= 100;
-
-        // Jouer le son approprié
-        try {
-            if (isCritical) {
-                criticalSound.currentTime = 0;
-                criticalSound.play();
-            } else {
-                attackSound.currentTime = 0;
-                attackSound.play();
-            }
-        } catch (error) {
-            console.log("Son d'attaque non disponible:", error);
-        }
-
-        // Nettoyer les classes d'animation existantes
-        player.classList.remove(
-            "classique1", "classique2",
-            "attacking1", "attacking2", "attacking3",
-            "block1", "block2", "shield", "idle"
-        );
-
-        // Effet visuel pour l'attaque critique
-        if (isCritical) {
-            player.style.filter = 'brightness(1.5) saturate(1.5)';
-            const gameContainer = document.getElementById('game-container');
-            gameContainer.style.animation = 'shake 0.3s';
-
-            setTimeout(() => {
-                player.style.filter = '';
-                gameContainer.style.animation = '';
-            }, 300);
-        }
-
-        // Séquence d'animation d'attaque
-        const sequence = [
-            { action: () => {
-                player.classList.add("attacking1");
-                if (isCritical) player.style.transform = 'scale(1.1)';
-            }, delay: 100 },
-            { action: () => {
-                player.classList.remove("attacking1");
-                player.classList.add("attacking2");
-            }, delay: 100 },
-            { action: () => {
-                player.classList.remove("attacking2");
-                player.classList.add("attacking3");
-            }, delay: 100 },
-            { action: () => {
-                player.classList.remove("attacking3");
-                player.classList.add("classique1");
-                if (isCritical) player.style.transform = '';
-            }, delay: 0 }
-        ];
-
-        // Exécuter la séquence d'animation
-        let totalDelay = 0;
-        sequence.forEach(({ action, delay }) => {
-            setTimeout(() => {
-                action();
-                player.classList.add(currentDirection); // Maintenir la direction
-            }, totalDelay);
-            totalDelay += delay;
-        });
-
-        // Empêcher de nouvelles attaques pendant l'animation
-        player.isAttacking = true;
-        setTimeout(() => {
-            player.isAttacking = false;
-        }, totalDelay);
-    }
     function generateCharacterClasses(character) {
         const isSmehlee = character.includes("smehlee");
         const prefix = isSmehlee ? "smehlee" : "foudubus";
-    
+
         const style = document.createElement("style");
         style.innerHTML = `
             .${prefix} {
