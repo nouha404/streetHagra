@@ -302,13 +302,6 @@ document.addEventListener("DOMContentLoaded", function () {
             player.isAttacking = false;
         }
 
-        // Retirer toutes les classes d'animation
-        player.classList.remove(
-            'classique1', 'classique2',
-            'attacking1', 'attacking2', 'attacking3',
-            'block1', 'block2', 'shield', 'ko'
-        );
-
         // Gérer la direction
         player.classList.remove("toleft", "toright");
         if (playerData.direction === "left") {
@@ -328,8 +321,13 @@ document.addEventListener("DOMContentLoaded", function () {
             player.classList.add('shield');
         } else if (playerData.animation === "attacking" && !player.isAttacking) {
             playAttackAnimation(playerId);
-        } else if (!player.isAttacking) {
-            player.classList.add(playerData.animation || 'classique1');
+        } else {
+            // Garder l'animation d'attaque si elle est en cours
+            if (!player.isAttacking) {
+                // Retirer uniquement les classes non liées à l'attaque
+                player.classList.remove('block1', 'block2', 'shield', 'ko');
+                player.classList.add(playerData.animation || 'classique1');
+            }
         }
 
         // Mettre à jour les barres de statut fixes
@@ -362,7 +360,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function playAttackAnimation(playerId) {
         const player = document.getElementById(playerId);
-        if (!player) return;
+        if (!player || player.isAttacking) return;  // Éviter les animations multiples
+
+        // Marquer le début de l'animation
+        player.isAttacking = true;
 
         // Sauvegarder la direction actuelle
         const currentDirection = player.classList.contains("toleft") ? "toleft" : "toright";
