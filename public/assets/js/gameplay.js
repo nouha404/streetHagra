@@ -332,11 +332,15 @@ document.addEventListener("DOMContentLoaded", function () {
             player.classList.add('ko');
             player.style.pointerEvents = 'none';
         } else if (playerData.isBlocking) {
-            player.classList.remove('classique1');
+            player.classList.remove('classique1', 'attacking1', 'attacking2', 'attacking3');
+            
+            // Si on est attaqué pendant le blocage
             if (playerData.animation === 'shield') {
                 player.classList.remove('block1', 'block2');
                 player.classList.add('shield');
-            } else {
+            } 
+            // Sinon on alterne entre block1 et block2
+            else {
                 player.classList.remove('shield');
                 player.classList.add(playerData.animation);
             }

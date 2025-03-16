@@ -99,15 +99,22 @@ module.exports = {
         const player = players[playerId];
         if (!player) return;
 
-        player.isBlocking = isStarting;
-        player.animation = isStarting ? "block1" : "classique1";
-        
         if (isStarting) {
+            player.isBlocking = true;
+            player.animation = "block1";
+            
+            // Récupération lente de mana pendant le blocage
+            player.mana = Math.min(100, player.mana + 2);
+            
+            // Alterner entre block1 et block2 pendant le blocage
             setTimeout(() => {
-                if (players[playerId]?.isBlocking) {
+                if (players[playerId]?.isBlocking && players[playerId].animation !== "shield") {
                     players[playerId].animation = "block2";
                 }
             }, 200);
+        } else {
+            player.isBlocking = false;
+            player.animation = "classique1";
         }
     }
 };
