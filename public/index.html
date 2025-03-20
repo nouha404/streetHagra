@@ -3,63 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>StreetHagrah</title>
-    <script src="/socket.io/socket.io.js"></script>
-    <script defer src="client.js"></script>
     <link rel="stylesheet" href="/assets/css/style.css">
+    <script defer src="/assets/js/script.js"></script>
 </head>
 <body>
-    <h1>StreetHagrah</h1>
-
-    <!-- Formulaire de nom -->
-    <div id="name-input">
-        <input type="text" id="player-name" placeholder="Entrez votre nom">
-        <button id="submit-name">Commencer</button>
+    <div id="intro-screen" class="screen">
+        <img class="blink" id="insert-coin" src="/assets/img/fond/insert-coin.png" alt="Insert Coins">
+        <img class="blink" id="start-text" src="/assets/img/fond/start.png" alt="Cliquez pour commencer">
     </div>
-
-    <!-- Sélecteur de personnage -->
-    <div id="character-selection" style="display: none;">
-        <h2>Choisissez votre personnage</h2>
-        <div class="character-options">
-            <div class="character-option" data-character="foudubus">
-                <img src="/assets/img/foudubus/to-left/toleft-foudubus-classique-1.svg" alt="Foudubus">
-                <p>Foudubus</p>
-            </div>
-            <div class="character-option" data-character="smehlee">
-                <img src="/assets/img/smehlee/to-left/toleft-smehlee-classique-1.svg" alt="Smehlee">
-                <p>Smehlee</p>
-            </div>
-        </div>
-        <button id="confirm-character">Confirmer</button>
-    </div>
-
-    <!-- Sélection de map -->
-    <div id="map-selection" style="display: none;">
-        <h2>Choisissez une map</h2>
-        <div id="carousel">
-            <button id="prev-map">&lt;</button>
-            <img id="map-image" src="" alt="Map">
-            <button id="next-map">&gt;</button>
-        </div>
-        <button id="confirm-map">Confirmer la map</button>
-    </div>
-
-    <!-- Message d'attente -->
-    <div id="waiting-message" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; color: white; display: none;">
-        En attente d'un deuxième joueur...
-    </div>
-
-    <!-- Image de combat -->
-    <div id="fight-image" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none;">
-        <img src="/assets/img/foudubus/fight.png" alt="Fight" style="width: 300px; height: auto;">
-    </div>
-
-    <!-- Zone de jeu -->
-    <div id="game" style="display: none;">
-        <div id="player1" class="player" style="display: none;"></div>
-        <div id="player2" class="player" style="display: none;"></div>
-        <img id="player1-ko" src="/assets/img/foudubus/to-right/toright-foudubus-ko.svg" alt="KO" class="ko-image">
-        <img id="player2-ko" src="/assets/img/foudubus/to-right/toright-foudubus-ko.svg" alt="KO" class="ko-image">
-<p id="status"></p>
+    
+    <div id="transition-screen" class="screen hidden">
+        <img id="transition-img" src="/assets/img/fond/fond-transition-4.png" alt="Transition">
     </div>
 </body>
 </html>

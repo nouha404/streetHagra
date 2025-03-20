@@ -4,7 +4,7 @@
   "description": "Pour recuperez le projet assurez vous d'avoir git bash sur votre machine et une fois que c'est fait, ouvrez git bash et faite : \r - git clone https://github.com/nouha404/streetHagra.git",
   "main": "index.js",
   "scripts": {
-  "start": "node server/server.js"
+    "start": "node server/server.js"
   },
   "repository": {
     "type": "git",
