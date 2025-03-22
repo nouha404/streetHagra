@@ -91,9 +91,12 @@ Street Hagra est un jeu de combat 2D multijoueur en temps réel où deux joueurs
 
 ## Installation
 1. Cloner le repository
-2. Installer les dépendances : `npm install`
-3. Lancer le serveur : `npm start`
-4. Ouvrir le jeu dans le navigateur : `http://localhost:3000`
+2. 
+3. Installer les dépendances :
+    -  `npm init -y`
+    -  `npm install express socket.io`
+5. Lancer le serveur : `npm start`
+6. Ouvrir le jeu dans le navigateur : `http://localhost:3000`
 
 ## Technologies Utilisées
 - Node.js et Express.js pour le serveur
